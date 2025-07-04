@@ -1,0 +1,103 @@
+The platform I want to deploy on only supports static sites, so everything must run on the frontend using JavaScript, and fetch requests to APIs. Build it for me.
+
+---
+
+🔷 1. Interface (Frontend)
+
+Build a responsive web page (mobile-friendly) using only HTML, CSS, and JavaScript where I can:
+
+- Enter two decision options: **Option A** and **Option B**
+- For each option, enter:
+  - A list of **Pros** (multi-line text area)
+  - A list of **Cons** (multi-line text area)
+  - (Optionally) assign a numeric **weight (1–10)** per line item using a simple syntax, e.g., `Faster load time | 8`
+- A button labeled "**Split the Decision**" to analyze and generate results
+
+---
+
+🔷 2. Processing Logic (In JavaScript Only)
+
+When the button is clicked:
+
+1. Parse the pros and cons for each option, and extract the optional weights
+2. Normalize weights per option
+3. Compute a **Logical Score**:
+   - Sum of (Pro weights - Con weights)
+4. Compute an **Emotional Score** using Mistral API:
+   - Send the list of Pros/Cons to Mistral for basic sentiment scoring
+5. Apply this formula for final scoring (alpha = 0.3):
+
+Composite Score = (1 - alpha) * Logical Score + alpha * Emotional Score
+
+---
+
+🔷 3. Mistral API (LLM Prompts)
+
+Use the Mistral API in the browser using `fetch` (you can hardcode the API key temporarily or use a secret manager if Replit supports it). Three prompts:
+
+**Prompt 1 – Summarize Input**
+
+You are DecisionAgent. I have two options: A and B. Option A pros: … Option A cons: … Option B pros: … Option B cons: … Summarize all bullets in 2–3 words each.
+
+**Prompt 2 – Score Emotion**
+
+Using sentiment analysis, give a positive/negative score (-10 to +10) for each pro and con. Return JSON: { "A_emotional": …, "B_emotional": … }
+
+**Prompt 3 – Final Decision**
+
+Given logical and emotional scores for both options and alpha = 0.3, calculate final composite scores. Explain in 3 parts:
+
+1. Logic-based reasoning
+
+
+2. Emotion-based reasoning
+
+
+3. Final verdict: Option A or B and why
+
+
+
+---
+
+🔷 4. Display Output (In Pure JavaScript)
+
+After fetching from Mistral:
+
+- Show:
+  - Logical score for A and B
+  - Emotional score for A and B
+  - Composite score for A and B
+  - Final decision: **Choose A** or **Choose B**
+  - A detailed explanation broken into:
+    - Logic Reasoning
+    - Emotional Reasoning
+    - Final Verdict
+
+Use styled divs and sections to make this visually appealing. You may use simple icons or emojis for scoring visuals (✅, ❌, 💡, etc.).
+
+---
+
+🔷 5. Google Sheets Integration (Optional Data Logging)
+
+Use Google Sheets as a lightweight backend to log each decision.
+
+Option 1 (No code on Google side): Use [SheetDB](https://sheetdb.io) or [Sheet.best](https://sheet.best) as a REST API bridge to your Google Sheet.
+
+Option 2 (Free, DIY): Use a [Google Apps Script Web App](https://script.google.com) deployed as a web endpoint. Your JavaScript can then POST decision data as JSON to the script.
+
+Log:
+- Option A text
+- Option B text
+- Scores
+- Final decision
+- Timestamp
+
+---
+
+🔷 6. Deployment
+
+This is a **static site** using just HTML, CSS, and JavaScript. Make sure:
+- No frameworks are used (no React, Node, TypeScript, Flask, etc.)
+- It's deployable on platforms like Netlify, GitHub Pages, or Replit’s Static HTML hosting
+
+Keep code modular and well-commented.
