@@ -1364,6 +1364,21 @@ body {
         align-items: center;
     }
 
+    /* Mobile-specific styles for new landing page sections */
+    div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    div[style*="display: flex; justify-content: center; gap: 60px"] {
+        flex-direction: column !important;
+        gap: 20px !important;
+    }
+
+    div[style*="font-size: 3rem"] {
+        font-size: 2rem !important;
+    }
+
     .auth-container {
         grid-template-columns: 1fr;
         padding: 40px 20px;

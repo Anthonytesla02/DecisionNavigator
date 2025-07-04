@@ -336,10 +336,22 @@ class DecisionSplitterApp {
             if (adminLink) {
                 adminLink.style.display = this.currentUser.isAdmin ? 'block' : 'none';
             }
+            
+            // Hide home link for logged-in users
+            const homeLink = document.querySelector('.nav-link[data-page="home"]');
+            if (homeLink) {
+                homeLink.style.display = 'none';
+            }
         } else {
             // Show auth section, hide user
             userSection.style.display = 'none';
             authSection.style.display = 'flex';
+            
+            // Show home link for non-logged-in users
+            const homeLink = document.querySelector('.nav-link[data-page="home"]');
+            if (homeLink) {
+                homeLink.style.display = 'flex';
+            }
         }
     }
 
@@ -382,7 +394,17 @@ class DecisionSplitterApp {
     }
 
     addFactor(option, type) {
+        if (!option || !type) {
+            console.error('Missing option or type parameter');
+            return;
+        }
+        
         const container = document.getElementById(`option${option}${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        if (!container) {
+            console.error(`Container not found: option${option}${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            return;
+        }
+        
         const factorItem = this.createFactorItem();
         container.appendChild(factorItem);
         
@@ -1054,6 +1076,16 @@ FINAL_VERDICT:
             if (rangeValue) {
                 rangeValue.textContent = `${Math.round(e.target.value * 100)}%`;
             }
+        });
+
+        // Google Sheets guide toggle
+        document.getElementById('showGoogleSheetsGuide')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('googleSheetsGuide').style.display = 'block';
+        });
+
+        document.getElementById('hideGoogleSheetsGuide')?.addEventListener('click', () => {
+            document.getElementById('googleSheetsGuide').style.display = 'none';
         });
     }
 
