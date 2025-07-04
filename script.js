@@ -1,153 +1,666 @@
-// DecisionSplitter - AI-Powered Decision Making Tool
-// Pure JavaScript implementation for static site deployment
+// Enhanced AI Decision Splitter - Multi-page Application
+// Pure JavaScript implementation with authentication, credit system, and advanced features
 
-class DecisionSplitter {
+class DecisionSplitterApp {
     constructor() {
+        this.currentUser = null;
+        this.currentPage = 'home';
         this.mistralApiKey = this.getMistralApiKey();
         this.googleSheetsUrl = this.getGoogleSheetsUrl();
         this.alpha = 0.3; // Weight for emotional vs logical scoring
         this.currentAnalysis = null;
+        this.charts = {};
         
-        this.initializeEventListeners();
-        this.validateInputs();
+        this.initializeApp();
     }
 
-    // Get API key from environment or use fallback
+    // Initialize the application
+    initializeApp() {
+        this.initializeNavigation();
+        this.initializeAuthentication();
+        this.initializeFactorSystem();
+        this.initializeEventListeners();
+        this.loadUserSession();
+        this.showPage('home');
+    }
+
+    // API Configuration
     getMistralApiKey() {
-        // Check for environment variable first, then use fallback
         return window.ENV?.MISTRAL_API_KEY || 
                localStorage.getItem('mistral_api_key') || 
-               'your-mistral-api-key-here';
+               null;
     }
 
-    // Get Google Sheets URL from environment or use fallback
     getGoogleSheetsUrl() {
         return window.ENV?.GOOGLE_SHEETS_URL || 
                localStorage.getItem('google_sheets_url') || 
                null;
     }
 
-    // Initialize all event listeners
+    // Navigation System
+    initializeNavigation() {
+        // Mobile hamburger menu
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        
+        hamburger?.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Navigation links
+        document.addEventListener('click', (e) => {
+            if (e.target.hasAttribute('data-page')) {
+                e.preventDefault();
+                const page = e.target.getAttribute('data-page');
+                this.showPage(page);
+                
+                // Close mobile menu
+                hamburger?.classList.remove('active');
+                navMenu?.classList.remove('active');
+            }
+        });
+
+        // User dropdown
+        const userBtn = document.getElementById('userBtn');
+        const dropdownContent = document.getElementById('dropdownContent');
+        
+        userBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownContent.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            dropdownContent?.classList.remove('show');
+        });
+
+        // Admin panel link
+        document.getElementById('adminPanelLink')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showPage('admin');
+        });
+
+        // Logout
+        document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.logout();
+        });
+    }
+
+    showPage(pageName) {
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+            page.style.display = 'none';
+        });
+
+        // Show target page
+        const targetPage = document.getElementById(pageName + 'Page');
+        if (targetPage) {
+            targetPage.style.display = 'block';
+            targetPage.classList.add('active');
+            this.currentPage = pageName;
+        }
+
+        // Update navigation active state
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-page') === pageName) {
+                link.classList.add('active');
+            }
+        });
+
+        // Handle page-specific logic
+        this.handlePageLogic(pageName);
+    }
+
+    handlePageLogic(pageName) {
+        switch (pageName) {
+            case 'analyze':
+                this.checkAnalyzeAccess();
+                break;
+            case 'dashboard':
+                this.loadDashboard();
+                break;
+            case 'admin':
+                this.loadAdminPanel();
+                break;
+            case 'settings':
+                this.loadSettings();
+                break;
+        }
+    }
+
+    checkAnalyzeAccess() {
+        if (!this.currentUser) {
+            this.showToast('Please login to start analyzing decisions', 'error');
+            this.showPage('auth');
+            return;
+        }
+
+        if (this.currentUser.credits <= 0) {
+            this.showToast('You have no credits remaining. Please upgrade your plan.', 'error');
+            this.showPage('dashboard');
+            return;
+        }
+    }
+
+    // Authentication System
+    initializeAuthentication() {
+        // Auth tabs
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                this.switchAuthTab(tab.getAttribute('data-tab'));
+            });
+        });
+
+        // Auth forms
+        document.getElementById('loginForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleLogin(e.target);
+        });
+
+        document.getElementById('registerForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleRegister(e.target);
+        });
+    }
+
+    switchAuthTab(tab) {
+        // Update tab styling
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+        // Show/hide forms
+        document.getElementById('loginForm').style.display = tab === 'login' ? 'flex' : 'none';
+        document.getElementById('registerForm').style.display = tab === 'register' ? 'flex' : 'none';
+
+        // Update header text
+        const title = document.getElementById('authTitle');
+        const subtitle = document.getElementById('authSubtitle');
+        
+        if (tab === 'login') {
+            title.textContent = 'Welcome Back';
+            subtitle.textContent = 'Sign in to access your decision analysis tools';
+        } else {
+            title.textContent = 'Create Account';
+            subtitle.textContent = 'Join thousands of smart decision makers';
+        }
+    }
+
+    async handleLogin(form) {
+        const formData = new FormData(form);
+        const email = formData.get('email') || document.getElementById('loginEmail').value;
+        const password = formData.get('password') || document.getElementById('loginPassword').value;
+
+        if (!email || !password) {
+            this.showToast('Please fill in all fields', 'error');
+            return;
+        }
+
+        try {
+            this.showLoadingOverlay();
+            
+            // Simulate API call - replace with real authentication
+            await this.simulateApiCall(1000);
+            
+            // Create user session
+            const user = await this.authenticateUser(email, password);
+            this.setCurrentUser(user);
+            
+            this.hideLoadingOverlay();
+            this.showToast(`Welcome back, ${user.name}!`, 'success');
+            this.showPage('dashboard');
+            
+        } catch (error) {
+            this.hideLoadingOverlay();
+            this.showToast(`Login failed: ${error.message}`, 'error');
+        }
+    }
+
+    async handleRegister(form) {
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!name || !email || !password || !confirmPassword) {
+            this.showToast('Please fill in all fields', 'error');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            this.showToast('Passwords do not match', 'error');
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showToast('Password must be at least 6 characters', 'error');
+            return;
+        }
+
+        try {
+            this.showLoadingOverlay();
+            
+            // Simulate API call
+            await this.simulateApiCall(1500);
+            
+            // Create new user
+            const user = await this.createUser(name, email, password);
+            this.setCurrentUser(user);
+            
+            this.hideLoadingOverlay();
+            this.showToast(`Welcome, ${user.name}! You have 2 free credits to start.`, 'success');
+            this.showPage('dashboard');
+            
+        } catch (error) {
+            this.hideLoadingOverlay();
+            this.showToast(`Registration failed: ${error.message}`, 'error');
+        }
+    }
+
+    async authenticateUser(email, password) {
+        // Simulate database lookup
+        const users = this.getUsersFromStorage();
+        const user = users.find(u => u.email === email);
+        
+        if (!user) {
+            throw new Error('User not found');
+        }
+        
+        // In real app, you'd hash and compare passwords
+        if (user.password !== password) {
+            throw new Error('Invalid password');
+        }
+        
+        return user;
+    }
+
+    async createUser(name, email, password) {
+        const users = this.getUsersFromStorage();
+        
+        // Check if user already exists
+        if (users.find(u => u.email === email)) {
+            throw new Error('User already exists');
+        }
+        
+        // Create new user
+        const user = {
+            id: Date.now(),
+            name,
+            email,
+            password, // In real app, hash this
+            credits: 2, // Free trial credits
+            plan: 'Free Trial',
+            status: 'active',
+            isAdmin: email === 'admin@example.com', // Make first user admin
+            joinDate: new Date().toISOString(),
+            decisions: []
+        };
+        
+        users.push(user);
+        localStorage.setItem('app_users', JSON.stringify(users));
+        
+        return user;
+    }
+
+    getUsersFromStorage() {
+        try {
+            return JSON.parse(localStorage.getItem('app_users') || '[]');
+        } catch {
+            return [];
+        }
+    }
+
+    setCurrentUser(user) {
+        this.currentUser = user;
+        localStorage.setItem('current_user', JSON.stringify(user));
+        this.updateUIForUser();
+    }
+
+    updateUIForUser() {
+        const userSection = document.getElementById('userSection');
+        const authSection = document.getElementById('authSection');
+        
+        if (this.currentUser) {
+            // Show user section, hide auth
+            userSection.style.display = 'flex';
+            authSection.style.display = 'none';
+            
+            // Update user info
+            document.getElementById('userName').textContent = this.currentUser.name;
+            document.getElementById('userCredits').textContent = `Credits: ${this.currentUser.credits}`;
+            
+            // Show admin panel for admins
+            const adminLink = document.getElementById('adminPanelLink');
+            if (adminLink) {
+                adminLink.style.display = this.currentUser.isAdmin ? 'block' : 'none';
+            }
+        } else {
+            // Show auth section, hide user
+            userSection.style.display = 'none';
+            authSection.style.display = 'flex';
+        }
+    }
+
+    loadUserSession() {
+        try {
+            const savedUser = localStorage.getItem('current_user');
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUIForUser();
+            }
+        } catch (error) {
+            console.error('Error loading user session:', error);
+        }
+    }
+
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('current_user');
+        this.updateUIForUser();
+        this.showToast('You have been logged out', 'success');
+        this.showPage('home');
+    }
+
+    // Enhanced Factor System
+    initializeFactorSystem() {
+        // Add factor buttons
+        document.querySelectorAll('.add-factor-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const option = e.target.getAttribute('data-option');
+                const type = e.target.getAttribute('data-type');
+                this.addFactor(option, type);
+            });
+        });
+
+        // Initialize weight sliders
+        this.initializeWeightSliders();
+        
+        // Initialize remove buttons
+        this.initializeRemoveButtons();
+    }
+
+    addFactor(option, type) {
+        const container = document.getElementById(`option${option}${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        const factorItem = this.createFactorItem();
+        container.appendChild(factorItem);
+        
+        // Initialize new factor's events
+        this.initializeFactorEvents(factorItem);
+        this.validateInputs();
+    }
+
+    createFactorItem() {
+        const div = document.createElement('div');
+        div.className = 'factor-item';
+        div.innerHTML = `
+            <input type="text" class="factor-input" placeholder="Enter factor">
+            <div class="weight-slider-container">
+                <label>Weight:</label>
+                <input type="range" class="weight-slider" min="1" max="10" value="5">
+                <span class="weight-value">5</span>
+            </div>
+            <button type="button" class="remove-factor-btn">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        return div;
+    }
+
+    initializeFactorEvents(factorItem) {
+        const slider = factorItem.querySelector('.weight-slider');
+        const valueDisplay = factorItem.querySelector('.weight-value');
+        const removeBtn = factorItem.querySelector('.remove-factor-btn');
+        const input = factorItem.querySelector('.factor-input');
+
+        slider.addEventListener('input', () => {
+            valueDisplay.textContent = slider.value;
+        });
+
+        removeBtn.addEventListener('click', () => {
+            // Don't remove if it's the last one
+            const container = factorItem.parentElement;
+            if (container.children.length > 1) {
+                factorItem.remove();
+                this.validateInputs();
+            }
+        });
+
+        input.addEventListener('input', () => {
+            this.validateInputs();
+        });
+    }
+
+    initializeWeightSliders() {
+        document.querySelectorAll('.weight-slider').forEach(slider => {
+            const valueDisplay = slider.nextElementSibling;
+            slider.addEventListener('input', () => {
+                valueDisplay.textContent = slider.value;
+            });
+        });
+    }
+
+    initializeRemoveButtons() {
+        document.querySelectorAll('.remove-factor-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const factorItem = e.target.closest('.factor-item');
+                const container = factorItem.parentElement;
+                
+                if (container.children.length > 1) {
+                    factorItem.remove();
+                    this.validateInputs();
+                }
+            });
+        });
+    }
+
+    // Event Listeners
     initializeEventListeners() {
-        // Main analyze button
-        document.getElementById('analyzeBtn').addEventListener('click', () => {
+        // Analyze button
+        document.getElementById('analyzeBtn')?.addEventListener('click', () => {
             this.analyzeDecision();
         });
 
         // New analysis button
-        document.getElementById('newAnalysisBtn').addEventListener('click', () => {
+        document.getElementById('newAnalysisBtn')?.addEventListener('click', () => {
             this.resetToNewAnalysis();
         });
 
         // Save results button
-        document.getElementById('saveResultsBtn').addEventListener('click', () => {
-            this.saveToGoogleSheets();
+        document.getElementById('saveResultsBtn')?.addEventListener('click', () => {
+            this.saveResults();
+        });
+
+        // Export PDF button
+        document.getElementById('exportPdfBtn')?.addEventListener('click', () => {
+            this.exportToPDF();
         });
 
         // Retry button
-        document.getElementById('retryBtn').addEventListener('click', () => {
+        document.getElementById('retryBtn')?.addEventListener('click', () => {
             this.hideError();
             this.analyzeDecision();
         });
 
-        // Input validation
-        const inputs = ['optionAName', 'optionAPros', 'optionACons', 'optionBName', 'optionBPros', 'optionBCons'];
-        inputs.forEach(id => {
-            document.getElementById(id).addEventListener('input', () => {
+        // Settings
+        document.getElementById('saveSettings')?.addEventListener('click', () => {
+            this.saveSettings();
+        });
+
+        // Input validation for option names
+        ['optionAName', 'optionBName'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', () => {
+                this.validateInputs();
+            });
+        });
+
+        // Factor inputs validation
+        document.querySelectorAll('.factor-input').forEach(input => {
+            input.addEventListener('input', () => {
                 this.validateInputs();
             });
         });
     }
 
-    // Validate inputs and enable/disable analyze button
+    // Input Validation
     validateInputs() {
-        const optionAName = document.getElementById('optionAName').value.trim();
-        const optionAPros = document.getElementById('optionAPros').value.trim();
-        const optionACons = document.getElementById('optionACons').value.trim();
-        const optionBName = document.getElementById('optionBName').value.trim();
-        const optionBPros = document.getElementById('optionBPros').value.trim();
-        const optionBCons = document.getElementById('optionBCons').value.trim();
-
-        const isValid = optionAName && (optionAPros || optionACons) && 
-                       optionBName && (optionBPros || optionBCons);
-
-        document.getElementById('analyzeBtn').disabled = !isValid;
+        const optionAName = document.getElementById('optionAName')?.value.trim();
+        const optionBName = document.getElementById('optionBName')?.value.trim();
+        
+        // Check if each option has at least one factor with text
+        const optionAFactors = this.getOptionFactors('A');
+        const optionBFactors = this.getOptionFactors('B');
+        
+        const hasValidA = optionAName && (optionAFactors.pros.length > 0 || optionAFactors.cons.length > 0);
+        const hasValidB = optionBName && (optionBFactors.pros.length > 0 || optionBFactors.cons.length > 0);
+        
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        if (analyzeBtn) {
+            analyzeBtn.disabled = !(hasValidA && hasValidB);
+        }
     }
 
-    // Parse pros/cons text and extract weights
-    parseProsCons(text) {
-        if (!text.trim()) return [];
+    getOptionFactors(option) {
+        const prosContainer = document.getElementById(`option${option}Pros`);
+        const consContainer = document.getElementById(`option${option}Cons`);
         
-        const lines = text.split('\n').map(line => line.trim()).filter(line => line);
-        return lines.map(line => {
-            // Check for weight syntax: "Item | weight"
-            const weightMatch = line.match(/^(.+?)\s*\|\s*(\d+)$/);
-            if (weightMatch) {
-                const item = weightMatch[1].trim();
-                const weight = Math.min(Math.max(parseInt(weightMatch[2]), 1), 10); // Clamp 1-10
-                return { item, weight };
-            } else {
-                return { item: line, weight: 5 }; // Default weight
+        const pros = [];
+        const cons = [];
+        
+        prosContainer?.querySelectorAll('.factor-item').forEach(item => {
+            const input = item.querySelector('.factor-input');
+            const slider = item.querySelector('.weight-slider');
+            if (input.value.trim()) {
+                pros.push({
+                    item: input.value.trim(),
+                    weight: parseInt(slider.value)
+                });
             }
         });
+        
+        consContainer?.querySelectorAll('.factor-item').forEach(item => {
+            const input = item.querySelector('.factor-input');
+            const slider = item.querySelector('.weight-slider');
+            if (input.value.trim()) {
+                cons.push({
+                    item: input.value.trim(),
+                    weight: parseInt(slider.value)
+                });
+            }
+        });
+        
+        return { pros, cons };
     }
 
-    // Calculate logical score for an option
+    // Analysis Engine
+    async analyzeDecision() {
+        if (!this.currentUser) {
+            this.showToast('Please login to analyze decisions', 'error');
+            this.showPage('auth');
+            return;
+        }
+
+        if (this.currentUser.credits <= 0) {
+            this.showToast('You have no credits remaining', 'error');
+            return;
+        }
+
+        if (!this.mistralApiKey) {
+            this.showToast('Please configure your Mistral API key in Settings', 'error');
+            this.showPage('settings');
+            return;
+        }
+
+        try {
+            this.showLoadingOverlay();
+            this.hideError();
+
+            // Get input data
+            const optionAData = {
+                name: document.getElementById('optionAName').value.trim(),
+                ...this.getOptionFactors('A')
+            };
+
+            const optionBData = {
+                name: document.getElementById('optionBName').value.trim(),
+                ...this.getOptionFactors('B')
+            };
+
+            // Calculate logical scores
+            const logicalScores = {
+                A: this.calculateLogicalScore(optionAData.pros, optionAData.cons),
+                B: this.calculateLogicalScore(optionBData.pros, optionBData.cons)
+            };
+
+            // Normalize logical scores
+            const maxPossibleA = (optionAData.pros.length + optionAData.cons.length) * 10;
+            const maxPossibleB = (optionBData.pros.length + optionBData.cons.length) * 10;
+            const maxPossible = Math.max(maxPossibleA, maxPossibleB, 1);
+
+            const normalizedLogicalScores = {
+                A: this.normalizeScore(logicalScores.A, maxPossible),
+                B: this.normalizeScore(logicalScores.B, maxPossible)
+            };
+
+            // Get emotional scores from Mistral AI
+            const emotionalScores = await this.getEmotionalScores(optionAData, optionBData);
+
+            // Calculate composite scores
+            const finalScores = {
+                A: (1 - this.alpha) * normalizedLogicalScores.A + this.alpha * emotionalScores.A_emotional,
+                B: (1 - this.alpha) * normalizedLogicalScores.B + this.alpha * emotionalScores.B_emotional
+            };
+
+            // Get detailed analysis
+            const analysis = await this.getDetailedAnalysis(
+                optionAData, 
+                optionBData, 
+                normalizedLogicalScores, 
+                emotionalScores, 
+                finalScores
+            );
+
+            // Create analysis object
+            this.currentAnalysis = {
+                timestamp: new Date().toISOString(),
+                optionA: optionAData,
+                optionB: optionBData,
+                scores: {
+                    logical: normalizedLogicalScores,
+                    emotional: emotionalScores,
+                    final: finalScores
+                },
+                analysis: analysis,
+                winner: finalScores.A > finalScores.B ? 'A' : 'B'
+            };
+
+            // Deduct credit
+            await this.deductCredit();
+
+            // Display results
+            this.displayResults();
+            this.createCharts();
+            this.hideLoadingOverlay();
+
+        } catch (error) {
+            console.error('Analysis failed:', error);
+            this.hideLoadingOverlay();
+            this.showError(`Analysis failed: ${error.message}. Please check your API configuration and try again.`);
+        }
+    }
+
     calculateLogicalScore(pros, cons) {
         const prosSum = pros.reduce((sum, pro) => sum + pro.weight, 0);
         const consSum = cons.reduce((sum, con) => sum + con.weight, 0);
         return prosSum - consSum;
     }
 
-    // Normalize scores to a -10 to +10 range
     normalizeScore(score, maxPossible) {
         if (maxPossible === 0) return 0;
         return (score / maxPossible) * 10;
     }
 
-    // Call Mistral API with retry logic
-    async callMistralAPI(prompt, retries = 3) {
-        const url = 'https://api.mistral.ai/v1/chat/completions';
-        
-        for (let i = 0; i < retries; i++) {
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.mistralApiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: 'mistral-small-latest',
-                        messages: [
-                            {
-                                role: 'user',
-                                content: prompt
-                            }
-                        ],
-                        temperature: 0.3,
-                        max_tokens: 1000
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`API request failed: ${response.status} - ${errorText}`);
-                }
-
-                const data = await response.json();
-                return data.choices[0].message.content;
-            } catch (error) {
-                console.error(`Mistral API attempt ${i + 1} failed:`, error);
-                if (i === retries - 1) throw error;
-                
-                // Wait before retry (exponential backoff)
-                await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
-            }
-        }
-    }
-
-    // Get emotional scores from Mistral AI
     async getEmotionalScores(optionAData, optionBData) {
         const prompt = `You are DecisionAgent, an expert in sentiment analysis for decision-making.
 
@@ -171,33 +684,24 @@ Respond with ONLY a JSON object in this exact format:
 
         try {
             const response = await this.callMistralAPI(prompt);
-            
-            // Extract JSON from response
             const jsonMatch = response.match(/\{[\s\S]*\}/);
             if (!jsonMatch) {
-                throw new Error('Invalid JSON response from Mistral API');
+                throw new Error('Invalid JSON response from Mistral AI');
             }
             
             const scores = JSON.parse(jsonMatch[0]);
             
-            // Validate scores
-            if (typeof scores.A_emotional !== 'number' || typeof scores.B_emotional !== 'number') {
-                throw new Error('Invalid emotional scores format');
-            }
-            
-            // Clamp scores to valid range
-            scores.A_emotional = Math.min(Math.max(scores.A_emotional, -10), 10);
-            scores.B_emotional = Math.min(Math.max(scores.B_emotional, -10), 10);
+            // Validate and clamp scores
+            scores.A_emotional = Math.min(Math.max(scores.A_emotional || 0, -10), 10);
+            scores.B_emotional = Math.min(Math.max(scores.B_emotional || 0, -10), 10);
             
             return scores;
         } catch (error) {
             console.error('Error getting emotional scores:', error);
-            // Return neutral scores as fallback
             return { A_emotional: 0, B_emotional: 0 };
         }
     }
 
-    // Get detailed analysis from Mistral AI
     async getDetailedAnalysis(optionAData, optionBData, logicalScores, emotionalScores, finalScores) {
         const winner = finalScores.A > finalScores.B ? 'A' : 'B';
         
@@ -224,104 +728,79 @@ FINAL_VERDICT:
         try {
             const response = await this.callMistralAPI(prompt);
             
-            // Parse the structured response
             const logicMatch = response.match(/LOGIC_REASONING:\s*([\s\S]*?)(?=EMOTION_REASONING:|$)/);
             const emotionMatch = response.match(/EMOTION_REASONING:\s*([\s\S]*?)(?=FINAL_VERDICT:|$)/);
             const verdictMatch = response.match(/FINAL_VERDICT:\s*([\s\S]*?)$/);
             
             return {
-                logic: logicMatch ? logicMatch[1].trim() : 'Logical analysis considers the weighted pros and cons for each option.',
-                emotion: emotionMatch ? emotionMatch[1].trim() : 'Emotional analysis evaluates psychological impact and satisfaction potential.',
+                logic: logicMatch ? logicMatch[1].trim() : `Based on logical scoring, Option ${winner} has a stronger rational foundation.`,
+                emotion: emotionMatch ? emotionMatch[1].trim() : `From an emotional perspective, Option ${winner} appears to offer better outcomes.`,
                 verdict: verdictMatch ? verdictMatch[1].trim() : `Option ${winner} is recommended based on the combined analysis.`
             };
         } catch (error) {
             console.error('Error getting detailed analysis:', error);
-            // Return fallback analysis
+            const winnerName = winner === 'A' ? optionAData.name : optionBData.name;
             return {
-                logic: `Based on logical scoring, Option ${winner} has a stronger rational foundation considering the weighted pros and cons.`,
-                emotion: `From an emotional perspective, Option ${winner} appears to offer better psychological outcomes and satisfaction potential.`,
-                verdict: `Option ${winner} is recommended as it scores higher in the composite analysis that balances logical reasoning (70%) with emotional intelligence (30%).`
+                logic: `Based on logical scoring, ${winnerName} has a stronger rational foundation considering the weighted pros and cons.`,
+                emotion: `From an emotional perspective, ${winnerName} appears to offer better psychological outcomes and satisfaction potential.`,
+                verdict: `${winnerName} is recommended as it scores higher in the composite analysis that balances logical reasoning (70%) with emotional intelligence (30%).`
             };
         }
     }
 
-    // Main analysis function
-    async analyzeDecision() {
-        try {
-            this.showLoading();
-            this.hideError();
+    async callMistralAPI(prompt, retries = 3) {
+        const url = 'https://api.mistral.ai/v1/chat/completions';
+        
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.mistralApiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'mistral-small-latest',
+                        messages: [{ role: 'user', content: prompt }],
+                        temperature: 0.3,
+                        max_tokens: 1000
+                    })
+                });
 
-            // Get input data
-            const optionAData = {
-                name: document.getElementById('optionAName').value.trim(),
-                pros: this.parseProsCons(document.getElementById('optionAPros').value),
-                cons: this.parseProsCons(document.getElementById('optionACons').value)
-            };
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API request failed: ${response.status} - ${errorText}`);
+                }
 
-            const optionBData = {
-                name: document.getElementById('optionBName').value.trim(),
-                pros: this.parseProsCons(document.getElementById('optionBPros').value),
-                cons: this.parseProsCons(document.getElementById('optionBCons').value)
-            };
-
-            // Calculate logical scores
-            const logicalScoreA = this.calculateLogicalScore(optionAData.pros, optionAData.cons);
-            const logicalScoreB = this.calculateLogicalScore(optionBData.pros, optionBData.cons);
-
-            // Normalize logical scores
-            const maxPossibleA = (optionAData.pros.length + optionAData.cons.length) * 10;
-            const maxPossibleB = (optionBData.pros.length + optionBData.cons.length) * 10;
-            const maxPossible = Math.max(maxPossibleA, maxPossibleB, 1);
-
-            const normalizedLogicalScores = {
-                A: this.normalizeScore(logicalScoreA, maxPossible),
-                B: this.normalizeScore(logicalScoreB, maxPossible)
-            };
-
-            // Get emotional scores from Mistral AI
-            const emotionalScores = await this.getEmotionalScores(optionAData, optionBData);
-
-            // Calculate composite scores
-            const finalScores = {
-                A: (1 - this.alpha) * normalizedLogicalScores.A + this.alpha * emotionalScores.A_emotional,
-                B: (1 - this.alpha) * normalizedLogicalScores.B + this.alpha * emotionalScores.B_emotional
-            };
-
-            // Get detailed analysis
-            const analysis = await this.getDetailedAnalysis(
-                optionAData, 
-                optionBData, 
-                normalizedLogicalScores, 
-                emotionalScores, 
-                finalScores
-            );
-
-            // Store current analysis for saving
-            this.currentAnalysis = {
-                timestamp: new Date().toISOString(),
-                optionA: optionAData,
-                optionB: optionBData,
-                scores: {
-                    logical: normalizedLogicalScores,
-                    emotional: emotionalScores,
-                    final: finalScores
-                },
-                analysis: analysis,
-                winner: finalScores.A > finalScores.B ? 'A' : 'B'
-            };
-
-            // Display results
-            this.displayResults();
-            this.hideLoading();
-
-        } catch (error) {
-            console.error('Analysis failed:', error);
-            this.hideLoading();
-            this.showError(`Analysis failed: ${error.message}. Please check your API configuration and try again.`);
+                const data = await response.json();
+                return data.choices[0].message.content;
+            } catch (error) {
+                console.error(`Mistral API attempt ${i + 1} failed:`, error);
+                if (i === retries - 1) throw error;
+                
+                await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+            }
         }
     }
 
-    // Display analysis results
+    async deductCredit() {
+        if (this.currentUser && this.currentUser.credits > 0) {
+            this.currentUser.credits--;
+            
+            // Update in storage
+            const users = this.getUsersFromStorage();
+            const userIndex = users.findIndex(u => u.id === this.currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex] = this.currentUser;
+                localStorage.setItem('app_users', JSON.stringify(users));
+            }
+            
+            localStorage.setItem('current_user', JSON.stringify(this.currentUser));
+            this.updateUIForUser();
+        }
+    }
+
+    // Results Display
     displayResults() {
         const { scores, analysis, optionA, optionB, winner } = this.currentAnalysis;
 
@@ -342,7 +821,7 @@ FINAL_VERDICT:
         document.getElementById('emotionReasoning').textContent = analysis.emotion;
         document.getElementById('finalVerdict').textContent = analysis.verdict;
 
-        // Show results section with animation
+        // Show results section
         const resultsSection = document.getElementById('resultsSection');
         resultsSection.style.display = 'block';
         resultsSection.classList.add('fade-in');
@@ -350,113 +829,422 @@ FINAL_VERDICT:
         // Hide input section
         document.getElementById('inputSection').style.display = 'none';
 
-        // Scroll to results
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
+        this.showToast('Analysis complete!', 'success');
     }
 
-    // Show loading state
-    showLoading() {
-        document.getElementById('analyzeBtn').style.display = 'none';
-        document.getElementById('loadingSpinner').style.display = 'block';
+    // Chart Creation
+    createCharts() {
+        this.createComparisonChart();
+        this.createBreakdownChart();
+        this.createFactorChart();
     }
 
-    // Hide loading state
-    hideLoading() {
-        document.getElementById('analyzeBtn').style.display = 'inline-block';
-        document.getElementById('loadingSpinner').style.display = 'none';
+    createComparisonChart() {
+        const ctx = document.getElementById('comparisonChart');
+        if (!ctx) return;
+
+        if (this.charts.comparison) {
+            this.charts.comparison.destroy();
+        }
+
+        const { scores, optionA, optionB } = this.currentAnalysis;
+
+        this.charts.comparison = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Logical Score', 'Emotional Score', 'Final Score'],
+                datasets: [{
+                    label: optionA.name,
+                    data: [scores.logical.A, scores.emotional.A_emotional, scores.final.A],
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2
+                }, {
+                    label: optionB.name,
+                    data: [scores.logical.B, scores.emotional.B_emotional, scores.final.B],
+                    backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                    borderColor: 'rgba(118, 75, 162, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        min: -10,
+                        max: 10
+                    }
+                }
+            }
+        });
     }
 
-    // Show error message
-    showError(message) {
-        document.getElementById('errorMessage').textContent = message;
-        document.getElementById('errorSection').style.display = 'block';
-        document.getElementById('errorSection').scrollIntoView({ behavior: 'smooth' });
+    createBreakdownChart() {
+        const ctx = document.getElementById('breakdownChart');
+        if (!ctx) return;
+
+        if (this.charts.breakdown) {
+            this.charts.breakdown.destroy();
+        }
+
+        const { scores } = this.currentAnalysis;
+        const logicalWeight = (1 - this.alpha) * 100;
+        const emotionalWeight = this.alpha * 100;
+
+        this.charts.breakdown = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [`Logical (${logicalWeight}%)`, `Emotional (${emotionalWeight}%)`],
+                datasets: [{
+                    data: [logicalWeight, emotionalWeight],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(231, 76, 60, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(231, 76, 60, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
     }
 
-    // Hide error message
-    hideError() {
-        document.getElementById('errorSection').style.display = 'none';
+    createFactorChart() {
+        const ctx = document.getElementById('factorChart');
+        if (!ctx) return;
+
+        if (this.charts.factor) {
+            this.charts.factor.destroy();
+        }
+
+        const { optionA, optionB } = this.currentAnalysis;
+
+        const optionAFactorCount = optionA.pros.length + optionA.cons.length;
+        const optionBFactorCount = optionB.pros.length + optionB.cons.length;
+
+        this.charts.factor = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Pros Count', 'Cons Count', 'Avg Pro Weight', 'Avg Con Weight'],
+                datasets: [{
+                    label: optionA.name,
+                    data: [
+                        optionA.pros.length,
+                        optionA.cons.length,
+                        optionA.pros.length ? optionA.pros.reduce((sum, p) => sum + p.weight, 0) / optionA.pros.length : 0,
+                        optionA.cons.length ? optionA.cons.reduce((sum, c) => sum + c.weight, 0) / optionA.cons.length : 0
+                    ],
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2
+                }, {
+                    label: optionB.name,
+                    data: [
+                        optionB.pros.length,
+                        optionB.cons.length,
+                        optionB.pros.length ? optionB.pros.reduce((sum, p) => sum + p.weight, 0) / optionB.pros.length : 0,
+                        optionB.cons.length ? optionB.cons.reduce((sum, c) => sum + c.weight, 0) / optionB.cons.length : 0
+                    ],
+                    backgroundColor: 'rgba(118, 75, 162, 0.2)',
+                    borderColor: 'rgba(118, 75, 162, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                }
+            }
+        });
     }
 
-    // Reset to new analysis
+    // Dashboard
+    loadDashboard() {
+        if (!this.currentUser) {
+            this.showPage('auth');
+            return;
+        }
+
+        // Update stats
+        document.getElementById('totalAnalyses').textContent = this.currentUser.decisions?.length || 0;
+        document.getElementById('remainingCredits').textContent = this.currentUser.credits;
+        document.getElementById('memberSince').textContent = new Date(this.currentUser.joinDate).toLocaleDateString();
+
+        // Load decision history
+        this.loadDecisionHistory();
+    }
+
+    loadDecisionHistory() {
+        const historyList = document.getElementById('historyList');
+        if (!this.currentUser.decisions || this.currentUser.decisions.length === 0) {
+            historyList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list"></i>
+                    <p>No decisions analyzed yet. Start your first analysis!</p>
+                    <button class="btn btn-primary" data-page="analyze">
+                        <i class="fas fa-chart-line"></i> Start Now
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        // Display recent decisions
+        const recentDecisions = this.currentUser.decisions.slice(-5).reverse();
+        historyList.innerHTML = recentDecisions.map(decision => `
+            <div class="decision-history-item">
+                <div class="decision-info">
+                    <h4>${decision.optionA.name} vs ${decision.optionB.name}</h4>
+                    <p>Winner: ${decision.winner === 'A' ? decision.optionA.name : decision.optionB.name}</p>
+                    <small>${new Date(decision.timestamp).toLocaleString()}</small>
+                </div>
+                <div class="decision-scores">
+                    <span class="score">Final: ${decision.scores.final[decision.winner].toFixed(2)}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Settings
+    loadSettings() {
+        if (!this.currentUser) {
+            this.showPage('auth');
+            return;
+        }
+
+        // Load current settings
+        document.getElementById('mistralApiKey').value = this.mistralApiKey || '';
+        document.getElementById('googleSheetsUrl').value = this.googleSheetsUrl || '';
+        document.getElementById('emotionalWeight').value = this.alpha;
+        
+        // Update range display
+        const rangeValue = document.querySelector('.range-value');
+        if (rangeValue) {
+            rangeValue.textContent = `${Math.round(this.alpha * 100)}%`;
+        }
+
+        // Update account info
+        document.getElementById('userEmail').textContent = this.currentUser.email;
+        document.getElementById('userPlan').textContent = this.currentUser.plan;
+        document.getElementById('settingsCredits').textContent = this.currentUser.credits;
+
+        // Add range input listener
+        const emotionalWeightSlider = document.getElementById('emotionalWeight');
+        emotionalWeightSlider?.addEventListener('input', (e) => {
+            if (rangeValue) {
+                rangeValue.textContent = `${Math.round(e.target.value * 100)}%`;
+            }
+        });
+    }
+
+    saveSettings() {
+        // Save API settings
+        const mistralKey = document.getElementById('mistralApiKey').value.trim();
+        const sheetsUrl = document.getElementById('googleSheetsUrl').value.trim();
+        const emotionalWeight = parseFloat(document.getElementById('emotionalWeight').value);
+
+        if (mistralKey) {
+            localStorage.setItem('mistral_api_key', mistralKey);
+            this.mistralApiKey = mistralKey;
+        }
+
+        if (sheetsUrl) {
+            localStorage.setItem('google_sheets_url', sheetsUrl);
+            this.googleSheetsUrl = sheetsUrl;
+        }
+
+        this.alpha = emotionalWeight;
+
+        this.showToast('Settings saved successfully!', 'success');
+    }
+
+    // Admin Panel
+    loadAdminPanel() {
+        if (!this.currentUser?.isAdmin) {
+            this.showToast('Access denied: Admin privileges required', 'error');
+            this.showPage('dashboard');
+            return;
+        }
+
+        const users = this.getUsersFromStorage();
+        
+        // Update stats
+        document.getElementById('totalUsers').textContent = users.length;
+        const totalDecisions = users.reduce((sum, user) => sum + (user.decisions?.length || 0), 0);
+        document.getElementById('totalDecisions').textContent = totalDecisions;
+
+        // Load users table
+        this.loadUsersTable(users);
+
+        // Add search functionality
+        const searchInput = document.getElementById('userSearch');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        const handleSearch = () => {
+            const query = searchInput.value.toLowerCase();
+            const filteredUsers = users.filter(user => 
+                user.name.toLowerCase().includes(query) ||
+                user.email.toLowerCase().includes(query)
+            );
+            this.loadUsersTable(filteredUsers);
+        };
+
+        searchBtn?.addEventListener('click', handleSearch);
+        searchInput?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+    }
+
+    loadUsersTable(users) {
+        const tbody = document.getElementById('usersTableBody');
+        if (!tbody) return;
+
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-table">No users found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = users.map(user => `
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.credits}</td>
+                <td><span class="status-badge ${user.status}">${user.status}</span></td>
+                <td>${new Date(user.joinDate).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="app.editUser(${user.id})">Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="app.deleteUser(${user.id})">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Utility Functions
     resetToNewAnalysis() {
         // Clear all inputs
         document.getElementById('optionAName').value = '';
-        document.getElementById('optionAPros').value = '';
-        document.getElementById('optionACons').value = '';
         document.getElementById('optionBName').value = '';
-        document.getElementById('optionBPros').value = '';
-        document.getElementById('optionBCons').value = '';
+        
+        // Reset factor lists to single items
+        ['optionAPros', 'optionACons', 'optionBPros', 'optionBCons'].forEach(id => {
+            const container = document.getElementById(id);
+            if (container) {
+                container.innerHTML = `
+                    <div class="factor-item">
+                        <input type="text" class="factor-input" placeholder="Enter factor">
+                        <div class="weight-slider-container">
+                            <label>Weight:</label>
+                            <input type="range" class="weight-slider" min="1" max="10" value="5">
+                            <span class="weight-value">5</span>
+                        </div>
+                        <button type="button" class="remove-factor-btn">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Reinitialize events for new elements
+                this.initializeFactorEvents(container.querySelector('.factor-item'));
+            }
+        });
 
         // Hide results and show input
         document.getElementById('resultsSection').style.display = 'none';
         document.getElementById('inputSection').style.display = 'block';
         
-        // Reset validation
         this.validateInputs();
-
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        // Clear current analysis
         this.currentAnalysis = null;
+        
+        // Destroy charts
+        Object.values(this.charts).forEach(chart => {
+            if (chart) chart.destroy();
+        });
+        this.charts = {};
     }
 
-    // Save results to Google Sheets
-    async saveToGoogleSheets() {
+    async saveResults() {
         if (!this.currentAnalysis) {
-            alert('No analysis data to save.');
-            return;
-        }
-
-        if (!this.googleSheetsUrl) {
-            // Show instruction for setting up Google Sheets
-            const setupInstructions = `To save results to Google Sheets, you need to:
-
-1. Create a Google Sheet
-2. Set up a Google Apps Script web app or use a service like SheetDB
-3. Set the GOOGLE_SHEETS_URL environment variable or save it to localStorage
-
-Example setup:
-localStorage.setItem('google_sheets_url', 'YOUR_SHEETS_API_URL');
-
-Would you like to set the URL now?`;
-
-            if (confirm(setupInstructions)) {
-                const url = prompt('Enter your Google Sheets API URL:');
-                if (url) {
-                    localStorage.setItem('google_sheets_url', url);
-                    this.googleSheetsUrl = url;
-                    this.saveToGoogleSheets(); // Retry saving
-                }
-            }
+            this.showToast('No analysis data to save', 'error');
             return;
         }
 
         try {
-            const saveButton = document.getElementById('saveResultsBtn');
-            const originalText = saveButton.innerHTML;
-            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            saveButton.disabled = true;
+            // Save to user's decision history
+            if (!this.currentUser.decisions) {
+                this.currentUser.decisions = [];
+            }
+            
+            this.currentUser.decisions.push(this.currentAnalysis);
+            
+            // Update storage
+            const users = this.getUsersFromStorage();
+            const userIndex = users.findIndex(u => u.id === this.currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex] = this.currentUser;
+                localStorage.setItem('app_users', JSON.stringify(users));
+            }
+            
+            localStorage.setItem('current_user', JSON.stringify(this.currentUser));
 
+            // Try to save to Google Sheets if configured
+            if (this.googleSheetsUrl) {
+                await this.saveToGoogleSheets();
+            }
+
+            this.showToast('Results saved successfully!', 'success');
+        } catch (error) {
+            console.error('Error saving results:', error);
+            this.showToast('Failed to save results', 'error');
+        }
+    }
+
+    async saveToGoogleSheets() {
+        if (!this.googleSheetsUrl || !this.currentAnalysis) {
+            return;
+        }
+
+        try {
             const { optionA, optionB, scores, winner, timestamp } = this.currentAnalysis;
 
             const dataToSave = {
-                timestamp: timestamp,
+                timestamp,
+                user_email: this.currentUser.email,
                 option_a_name: optionA.name,
-                option_a_pros: optionA.pros.map(p => `${p.item} | ${p.weight}`).join('; '),
-                option_a_cons: optionA.cons.map(c => `${c.item} | ${c.weight}`).join('; '),
+                option_a_pros: optionA.pros.map(p => `${p.item} (${p.weight})`).join('; '),
+                option_a_cons: optionA.cons.map(c => `${c.item} (${c.weight})`).join('; '),
                 option_b_name: optionB.name,
-                option_b_pros: optionB.pros.map(p => `${p.item} | ${p.weight}`).join('; '),
-                option_b_cons: optionB.cons.map(c => `${c.item} | ${c.weight}`).join('; '),
+                option_b_pros: optionB.pros.map(p => `${p.item} (${p.weight})`).join('; '),
+                option_b_cons: optionB.cons.map(c => `${c.item} (${c.weight})`).join('; '),
                 logical_score_a: scores.logical.A.toFixed(2),
                 logical_score_b: scores.logical.B.toFixed(2),
                 emotional_score_a: scores.emotional.A_emotional.toFixed(2),
                 emotional_score_b: scores.emotional.B_emotional.toFixed(2),
                 final_score_a: scores.final.A.toFixed(2),
                 final_score_b: scores.final.B.toFixed(2),
-                winner: winner,
-                winner_name: winner === 'A' ? optionA.name : optionB.name
+                winner: winner === 'A' ? optionA.name : optionB.name
             };
 
             const response = await fetch(this.googleSheetsUrl, {
@@ -468,47 +1256,162 @@ Would you like to set the URL now?`;
             });
 
             if (!response.ok) {
-                throw new Error(`Failed to save to Google Sheets: ${response.status}`);
+                throw new Error(`Google Sheets save failed: ${response.status}`);
             }
-
-            // Success feedback
-            saveButton.innerHTML = '<i class="fas fa-check"></i> Saved!';
-            saveButton.style.background = '#28a745';
-            
-            setTimeout(() => {
-                saveButton.innerHTML = originalText;
-                saveButton.style.background = '';
-                saveButton.disabled = false;
-            }, 2000);
 
         } catch (error) {
             console.error('Error saving to Google Sheets:', error);
-            alert(`Failed to save to Google Sheets: ${error.message}`);
-            
-            const saveButton = document.getElementById('saveResultsBtn');
-            saveButton.innerHTML = '<i class="fas fa-save"></i> Save to Google Sheets';
-            saveButton.disabled = false;
+            throw new Error('Failed to save to Google Sheets');
         }
+    }
+
+    exportToPDF() {
+        if (!this.currentAnalysis) {
+            this.showToast('No analysis data to export', 'error');
+            return;
+        }
+
+        // Simple PDF export using browser print
+        const { optionA, optionB, scores, analysis, winner } = this.currentAnalysis;
+        const winnerName = winner === 'A' ? optionA.name : optionB.name;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Decision Analysis Report</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+                    .header { text-align: center; margin-bottom: 40px; }
+                    .section { margin-bottom: 30px; }
+                    .scores { display: flex; justify-content: space-around; margin: 20px 0; }
+                    .score-item { text-align: center; }
+                    .winner { background: #28a745; color: white; padding: 20px; text-align: center; border-radius: 10px; }
+                    @media print { .no-print { display: none; } }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>Decision Analysis Report</h1>
+                    <p>Generated on ${new Date().toLocaleString()}</p>
+                </div>
+                
+                <div class="section">
+                    <h2>Decision Overview</h2>
+                    <p><strong>Option A:</strong> ${optionA.name}</p>
+                    <p><strong>Option B:</strong> ${optionB.name}</p>
+                </div>
+
+                <div class="section">
+                    <h2>Scoring Results</h2>
+                    <div class="scores">
+                        <div class="score-item">
+                            <h3>Logical Scores</h3>
+                            <p>Option A: ${scores.logical.A.toFixed(2)}</p>
+                            <p>Option B: ${scores.logical.B.toFixed(2)}</p>
+                        </div>
+                        <div class="score-item">
+                            <h3>Emotional Scores</h3>
+                            <p>Option A: ${scores.emotional.A_emotional.toFixed(2)}</p>
+                            <p>Option B: ${scores.emotional.B_emotional.toFixed(2)}</p>
+                        </div>
+                        <div class="score-item">
+                            <h3>Final Scores</h3>
+                            <p>Option A: ${scores.final.A.toFixed(2)}</p>
+                            <p>Option B: ${scores.final.B.toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="winner">
+                    <h2>Recommended Choice: ${winnerName}</h2>
+                </div>
+
+                <div class="section">
+                    <h2>Analysis Details</h2>
+                    <h3>Logical Reasoning</h3>
+                    <p>${analysis.logic}</p>
+                    
+                    <h3>Emotional Reasoning</h3>
+                    <p>${analysis.emotion}</p>
+                    
+                    <h3>Final Verdict</h3>
+                    <p>${analysis.verdict}</p>
+                </div>
+
+                <div class="no-print" style="text-align: center; margin-top: 40px;">
+                    <button onclick="window.print()">Print Report</button>
+                    <button onclick="window.close()">Close</button>
+                </div>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        printWindow.focus();
+    }
+
+    // UI Helper Functions
+    showLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.add('show');
+        }
+    }
+
+    hideLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.remove('show');
+        }
+    }
+
+    showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <i class="toast-icon ${type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+            <button class="toast-close">&times;</button>
+        `;
+
+        container.appendChild(toast);
+
+        // Show toast
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+
+        // Close button
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        });
+    }
+
+    showError(message) {
+        document.getElementById('errorMessage').textContent = message;
+        document.getElementById('errorSection').style.display = 'block';
+    }
+
+    hideError() {
+        document.getElementById('errorSection').style.display = 'none';
+    }
+
+    // Utility helper
+    async simulateApiCall(delay) {
+        return new Promise(resolve => setTimeout(resolve, delay));
     }
 }
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.decisionSplitter = new DecisionSplitter();
+    window.app = new DecisionSplitterApp();
 });
-
-// Utility function to set API keys (for development/testing)
-window.setMistralApiKey = function(apiKey) {
-    localStorage.setItem('mistral_api_key', apiKey);
-    location.reload();
-};
-
-window.setGoogleSheetsUrl = function(url) {
-    localStorage.setItem('google_sheets_url', url);
-    location.reload();
-};
-
-// Export for potential module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = DecisionSplitter;
-}

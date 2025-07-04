@@ -6,17 +6,169 @@
     <title>AI Decision Splitter</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1><i class="fas fa-brain"></i> AI Decision Splitter</h1>
-            <p>Make smarter decisions with logical and emotional intelligence</p>
-        </header>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-brain"></i>
+                <span>AI Decision Splitter</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="home">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="analyze">
+                        <i class="fas fa-chart-line"></i> Analyze
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="settings">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
+                <li class="nav-item user-section" id="userSection" style="display: none;">
+                    <span class="user-credits" id="userCredits">Credits: --</span>
+                    <div class="user-dropdown">
+                        <button class="user-btn" id="userBtn">
+                            <i class="fas fa-user"></i>
+                            <span id="userName">User</span>
+                        </button>
+                        <div class="dropdown-content" id="dropdownContent">
+                            <a href="#" id="adminPanelLink" style="display: none;">
+                                <i class="fas fa-shield-alt"></i> Admin Panel
+                            </a>
+                            <a href="#" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item auth-section" id="authSection">
+                    <a href="#" class="nav-link" data-page="auth">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                </li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
 
-        <main class="main-content">
-            <!-- Input Section -->
-            <section class="input-section" id="inputSection">
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3>Analyzing Decision...</h3>
+            <p>Our AI is processing your options using advanced logical and emotional intelligence</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Home Page -->
+        <div class="page" id="homePage">
+            <header class="hero-section">
+                <div class="hero-content">
+                    <h1><i class="fas fa-brain"></i> AI Decision Splitter</h1>
+                    <p class="hero-subtitle">Make smarter decisions with logical and emotional intelligence</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" data-page="analyze">
+                            <i class="fas fa-chart-line"></i> Start Analyzing
+                        </button>
+                        <button class="btn btn-secondary" data-page="auth">
+                            <i class="fas fa-user-plus"></i> Get Started Free
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-features">
+                    <div class="feature-card">
+                        <i class="fas fa-calculator"></i>
+                        <h3>Logical Analysis</h3>
+                        <p>Weighted scoring of pros and cons with mathematical precision</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-heart"></i>
+                        <h3>Emotional Intelligence</h3>
+                        <p>AI-powered sentiment analysis for psychological factors</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-bar"></i>
+                        <h3>Visual Insights</h3>
+                        <p>Interactive charts and comprehensive decision reports</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Pricing Section -->
+            <section class="pricing-section">
+                <h2>Choose Your Plan</h2>
+                <div class="pricing-cards">
+                    <div class="pricing-card">
+                        <div class="plan-header">
+                            <h3>Free Trial</h3>
+                            <div class="price">$0</div>
+                            <p class="price-period">2 analyses included</p>
+                        </div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> 2 decision analyses</li>
+                            <li><i class="fas fa-check"></i> Basic charts</li>
+                            <li><i class="fas fa-check"></i> Email support</li>
+                        </ul>
+                        <button class="btn btn-outline" data-page="auth">Get Started</button>
+                    </div>
+                    <div class="pricing-card featured">
+                        <div class="plan-header">
+                            <h3>Basic</h3>
+                            <div class="price">$9.99</div>
+                            <p class="price-period">per month</p>
+                        </div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> 50 decision analyses</li>
+                            <li><i class="fas fa-check"></i> Advanced charts</li>
+                            <li><i class="fas fa-check"></i> Decision history</li>
+                            <li><i class="fas fa-check"></i> Export reports</li>
+                        </ul>
+                        <button class="btn btn-primary" data-page="auth">Choose Basic</button>
+                    </div>
+                    <div class="pricing-card">
+                        <div class="plan-header">
+                            <h3>Premium</h3>
+                            <div class="price">$24.99</div>
+                            <p class="price-period">per month</p>
+                        </div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Unlimited analyses</li>
+                            <li><i class="fas fa-check"></i> Premium AI insights</li>
+                            <li><i class="fas fa-check"></i> Team collaboration</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                        </ul>
+                        <button class="btn btn-primary" data-page="auth">Choose Premium</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Analyze Page -->
+        <div class="page" id="analyzePage" style="display: none;">
+            <main class="main-content">
+                <!-- Input Section -->
+                <section class="input-section" id="inputSection">
                 <div class="options-container">
                     <!-- Option A -->
                     <div class="option-card">
@@ -25,13 +177,51 @@
                             <label for="optionAName">Option Name:</label>
                             <input type="text" id="optionAName" placeholder="Enter Option A name" maxlength="100">
                         </div>
-                        <div class="input-group">
-                            <label for="optionAPros">Pros: <span class="help-text">(Use format: "Item | weight" for optional weights 1-10)</span></label>
-                            <textarea id="optionAPros" placeholder="List the pros for Option A&#10;Example: Faster implementation | 8&#10;Lower cost | 6" rows="6"></textarea>
+                        
+                        <!-- Pros Section -->
+                        <div class="factors-section">
+                            <div class="factors-header">
+                                <label>Pros:</label>
+                                <button type="button" class="add-factor-btn" data-option="A" data-type="pros">
+                                    <i class="fas fa-plus"></i> Add Pro
+                                </button>
+                            </div>
+                            <div class="factors-list" id="optionAPros">
+                                <div class="factor-item">
+                                    <input type="text" class="factor-input" placeholder="Enter a positive factor">
+                                    <div class="weight-slider-container">
+                                        <label>Weight:</label>
+                                        <input type="range" class="weight-slider" min="1" max="10" value="5">
+                                        <span class="weight-value">5</span>
+                                    </div>
+                                    <button type="button" class="remove-factor-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label for="optionACons">Cons:</label>
-                            <textarea id="optionACons" placeholder="List the cons for Option A&#10;Example: Higher risk | 7&#10;Limited scalability | 5" rows="6"></textarea>
+
+                        <!-- Cons Section -->
+                        <div class="factors-section">
+                            <div class="factors-header">
+                                <label>Cons:</label>
+                                <button type="button" class="add-factor-btn" data-option="A" data-type="cons">
+                                    <i class="fas fa-plus"></i> Add Con
+                                </button>
+                            </div>
+                            <div class="factors-list" id="optionACons">
+                                <div class="factor-item">
+                                    <input type="text" class="factor-input" placeholder="Enter a negative factor">
+                                    <div class="weight-slider-container">
+                                        <label>Weight:</label>
+                                        <input type="range" class="weight-slider" min="1" max="10" value="5">
+                                        <span class="weight-value">5</span>
+                                    </div>
+                                    <button type="button" class="remove-factor-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -42,13 +232,51 @@
                             <label for="optionBName">Option Name:</label>
                             <input type="text" id="optionBName" placeholder="Enter Option B name" maxlength="100">
                         </div>
-                        <div class="input-group">
-                            <label for="optionBPros">Pros: <span class="help-text">(Use format: "Item | weight" for optional weights 1-10)</span></label>
-                            <textarea id="optionBPros" placeholder="List the pros for Option B&#10;Example: Better long-term solution | 9&#10;More features | 7" rows="6"></textarea>
+                        
+                        <!-- Pros Section -->
+                        <div class="factors-section">
+                            <div class="factors-header">
+                                <label>Pros:</label>
+                                <button type="button" class="add-factor-btn" data-option="B" data-type="pros">
+                                    <i class="fas fa-plus"></i> Add Pro
+                                </button>
+                            </div>
+                            <div class="factors-list" id="optionBPros">
+                                <div class="factor-item">
+                                    <input type="text" class="factor-input" placeholder="Enter a positive factor">
+                                    <div class="weight-slider-container">
+                                        <label>Weight:</label>
+                                        <input type="range" class="weight-slider" min="1" max="10" value="5">
+                                        <span class="weight-value">5</span>
+                                    </div>
+                                    <button type="button" class="remove-factor-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label for="optionBCons">Cons:</label>
-                            <textarea id="optionBCons" placeholder="List the cons for Option B&#10;Example: Higher initial cost | 6&#10;Longer implementation | 8" rows="6"></textarea>
+
+                        <!-- Cons Section -->
+                        <div class="factors-section">
+                            <div class="factors-header">
+                                <label>Cons:</label>
+                                <button type="button" class="add-factor-btn" data-option="B" data-type="cons">
+                                    <i class="fas fa-plus"></i> Add Con
+                                </button>
+                            </div>
+                            <div class="factors-list" id="optionBCons">
+                                <div class="factor-item">
+                                    <input type="text" class="factor-input" placeholder="Enter a negative factor">
+                                    <div class="weight-slider-container">
+                                        <label>Weight:</label>
+                                        <input type="range" class="weight-slider" min="1" max="10" value="5">
+                                        <span class="weight-value">5</span>
+                                    </div>
+                                    <button type="button" class="remove-factor-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -67,6 +295,22 @@
             <section class="results-section" id="resultsSection" style="display: none;">
                 <h2><i class="fas fa-chart-line"></i> Decision Analysis Results</h2>
                 
+                <!-- Charts Section -->
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-bar"></i> Comparison Overview</h3>
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-pie"></i> Score Breakdown</h3>
+                        <canvas id="breakdownChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-radar"></i> Factor Distribution</h3>
+                        <canvas id="factorChart"></canvas>
+                    </div>
+                </div>
+
                 <!-- Scores Overview -->
                 <div class="scores-overview">
                     <div class="score-card logical">
@@ -143,7 +387,10 @@
                         <i class="fas fa-plus"></i> New Analysis
                     </button>
                     <button id="saveResultsBtn" class="secondary-btn">
-                        <i class="fas fa-save"></i> Save to Google Sheets
+                        <i class="fas fa-save"></i> Save Results
+                    </button>
+                    <button id="exportPdfBtn" class="secondary-btn">
+                        <i class="fas fa-file-pdf"></i> Export PDF
                     </button>
                 </div>
             </section>
@@ -159,7 +406,264 @@
                     </button>
                 </div>
             </section>
-        </main>
+            </main>
+        </div>
+
+        <!-- Authentication Page -->
+        <div class="page" id="authPage" style="display: none;">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h2 id="authTitle">Welcome Back</h2>
+                        <p id="authSubtitle">Sign in to access your decision analysis tools</p>
+                    </div>
+
+                    <div class="auth-tabs">
+                        <button class="auth-tab active" data-tab="login">Login</button>
+                        <button class="auth-tab" data-tab="register">Register</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form class="auth-form" id="loginForm">
+                        <div class="input-group">
+                            <label for="loginEmail">Email:</label>
+                            <input type="email" id="loginEmail" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="loginPassword">Password:</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </button>
+                        <p class="auth-link">
+                            Don't have an account? 
+                            <a href="#" class="auth-tab" data-tab="register">Create one</a>
+                        </p>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form class="auth-form" id="registerForm" style="display: none;">
+                        <div class="input-group">
+                            <label for="registerName">Full Name:</label>
+                            <input type="text" id="registerName" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="registerEmail">Email:</label>
+                            <input type="email" id="registerEmail" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="registerPassword">Password:</label>
+                            <input type="password" id="registerPassword" required minlength="6">
+                        </div>
+                        <div class="input-group">
+                            <label for="confirmPassword">Confirm Password:</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                        <p class="auth-link">
+                            Already have an account? 
+                            <a href="#" class="auth-tab" data-tab="login">Sign in</a>
+                        </p>
+                    </form>
+                </div>
+                <div class="auth-hero">
+                    <h3>Join thousands of smart decision makers</h3>
+                    <div class="auth-features">
+                        <div class="auth-feature">
+                            <i class="fas fa-brain"></i>
+                            <span>AI-powered analysis</span>
+                        </div>
+                        <div class="auth-feature">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Visual insights</span>
+                        </div>
+                        <div class="auth-feature">
+                            <i class="fas fa-history"></i>
+                            <span>Decision history</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div class="page" id="dashboardPage" style="display: none;">
+            <div class="dashboard-header">
+                <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalAnalyses">0</h3>
+                            <p>Total Analyses</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="remainingCredits">0</h3>
+                            <p>Credits Remaining</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="memberSince">--</h3>
+                            <p>Member Since</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="decision-history">
+                    <div class="section-header">
+                        <h3><i class="fas fa-history"></i> Recent Decisions</h3>
+                        <button class="btn btn-primary" data-page="analyze">
+                            <i class="fas fa-plus"></i> New Analysis
+                        </button>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>No decisions analyzed yet. Start your first analysis!</p>
+                            <button class="btn btn-primary" data-page="analyze">
+                                <i class="fas fa-chart-line"></i> Start Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" id="settingsPage" style="display: none;">
+            <div class="settings-container">
+                <h2><i class="fas fa-cog"></i> Settings</h2>
+                
+                <div class="settings-section">
+                    <h3>API Configuration</h3>
+                    <div class="input-group">
+                        <label for="mistralApiKey">Mistral API Key:</label>
+                        <input type="password" id="mistralApiKey" placeholder="Enter your Mistral API key">
+                        <small>Required for AI-powered analysis. Get your key from <a href="https://mistral.ai" target="_blank">Mistral AI</a></small>
+                    </div>
+                    <div class="input-group">
+                        <label for="googleSheetsUrl">Google Sheets URL:</label>
+                        <input type="url" id="googleSheetsUrl" placeholder="Optional: Google Sheets API endpoint">
+                        <small>For saving decision history. Set up a Google Apps Script or use SheetDB</small>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Analysis Preferences</h3>
+                    <div class="input-group">
+                        <label for="emotionalWeight">Emotional Weight (Alpha):</label>
+                        <input type="range" id="emotionalWeight" min="0" max="1" step="0.1" value="0.3">
+                        <span class="range-value">30%</span>
+                        <small>Balance between logical (70%) and emotional (30%) analysis</small>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Account</h3>
+                    <div class="account-info">
+                        <div class="info-row">
+                            <span>Email:</span>
+                            <span id="userEmail">--</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Plan:</span>
+                            <span id="userPlan">Free Trial</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Credits Remaining:</span>
+                            <span id="settingsCredits">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="btn btn-primary" id="saveSettings">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                    <button class="btn btn-danger" id="deleteAccount">
+                        <i class="fas fa-trash"></i> Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div class="page" id="adminPage" style="display: none;">
+            <div class="admin-container">
+                <div class="admin-header">
+                    <h2><i class="fas fa-shield-alt"></i> Admin Panel</h2>
+                    <div class="admin-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalUsers">0</h3>
+                                <p>Total Users</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalDecisions">0</h3>
+                                <p>Total Decisions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-content">
+                    <div class="user-management">
+                        <div class="section-header">
+                            <h3><i class="fas fa-users-cog"></i> User Management</h3>
+                            <div class="search-bar">
+                                <input type="text" id="userSearch" placeholder="Search users...">
+                                <button id="searchBtn"><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="users-table-container">
+                            <table class="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Credits</th>
+                                        <th>Status</th>
+                                        <th>Join Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr>
+                                        <td colspan="7" class="empty-table">No users found</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <footer class="footer">
             <p>Powered by Mistral AI • Built with ❤️ for better decisions</p>
