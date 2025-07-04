@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Decision Splitter</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-brain"></i> AI Decision Splitter</h1>
+            <p>Make smarter decisions with logical and emotional intelligence</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Input Section -->
+            <section class="input-section" id="inputSection">
+                <div class="options-container">
+                    <!-- Option A -->
+                    <div class="option-card">
+                        <h2><i class="fas fa-arrow-left"></i> Option A</h2>
+                        <div class="input-group">
+                            <label for="optionAName">Option Name:</label>
+                            <input type="text" id="optionAName" placeholder="Enter Option A name" maxlength="100">
+                        </div>
+                        <div class="input-group">
+                            <label for="optionAPros">Pros: <span class="help-text">(Use format: "Item | weight" for optional weights 1-10)</span></label>
+                            <textarea id="optionAPros" placeholder="List the pros for Option A&#10;Example: Faster implementation | 8&#10;Lower cost | 6" rows="6"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="optionACons">Cons:</label>
+                            <textarea id="optionACons" placeholder="List the cons for Option A&#10;Example: Higher risk | 7&#10;Limited scalability | 5" rows="6"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Option B -->
+                    <div class="option-card">
+                        <h2><i class="fas fa-arrow-right"></i> Option B</h2>
+                        <div class="input-group">
+                            <label for="optionBName">Option Name:</label>
+                            <input type="text" id="optionBName" placeholder="Enter Option B name" maxlength="100">
+                        </div>
+                        <div class="input-group">
+                            <label for="optionBPros">Pros: <span class="help-text">(Use format: "Item | weight" for optional weights 1-10)</span></label>
+                            <textarea id="optionBPros" placeholder="List the pros for Option B&#10;Example: Better long-term solution | 9&#10;More features | 7" rows="6"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="optionBCons">Cons:</label>
+                            <textarea id="optionBCons" placeholder="List the cons for Option B&#10;Example: Higher initial cost | 6&#10;Longer implementation | 8" rows="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-section">
+                    <button id="analyzeBtn" class="analyze-btn" disabled>
+                        <i class="fas fa-magic"></i> Split the Decision
+                    </button>
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <i class="fas fa-spinner fa-spin"></i> Analyzing with AI...
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2><i class="fas fa-chart-line"></i> Decision Analysis Results</h2>
+                
+                <!-- Scores Overview -->
+                <div class="scores-overview">
+                    <div class="score-card logical">
+                        <h3><i class="fas fa-calculator"></i> Logical Scores</h3>
+                        <div class="score-row">
+                            <span class="option-label">Option A:</span>
+                            <span class="score-value" id="logicalScoreA">-</span>
+                        </div>
+                        <div class="score-row">
+                            <span class="option-label">Option B:</span>
+                            <span class="score-value" id="logicalScoreB">-</span>
+                        </div>
+                    </div>
+
+                    <div class="score-card emotional">
+                        <h3><i class="fas fa-heart"></i> Emotional Scores</h3>
+                        <div class="score-row">
+                            <span class="option-label">Option A:</span>
+                            <span class="score-value" id="emotionalScoreA">-</span>
+                        </div>
+                        <div class="score-row">
+                            <span class="option-label">Option B:</span>
+                            <span class="score-value" id="emotionalScoreB">-</span>
+                        </div>
+                    </div>
+
+                    <div class="score-card composite">
+                        <h3><i class="fas fa-trophy"></i> Final Scores</h3>
+                        <div class="score-row">
+                            <span class="option-label">Option A:</span>
+                            <span class="score-value" id="finalScoreA">-</span>
+                        </div>
+                        <div class="score-row">
+                            <span class="option-label">Option B:</span>
+                            <span class="score-value" id="finalScoreB">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Decision -->
+                <div class="final-decision" id="finalDecision">
+                    <div class="decision-badge">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="winnerText">Analyzing...</span>
+                    </div>
+                </div>
+
+                <!-- Detailed Analysis -->
+                <div class="analysis-details">
+                    <div class="analysis-section">
+                        <h3><i class="fas fa-lightbulb"></i> Logic-Based Reasoning</h3>
+                        <div id="logicReasoning" class="reasoning-content">
+                            Calculating logical scores...
+                        </div>
+                    </div>
+
+                    <div class="analysis-section">
+                        <h3><i class="fas fa-heart"></i> Emotion-Based Reasoning</h3>
+                        <div id="emotionReasoning" class="reasoning-content">
+                            Analyzing emotional factors...
+                        </div>
+                    </div>
+
+                    <div class="analysis-section">
+                        <h3><i class="fas fa-gavel"></i> Final Verdict</h3>
+                        <div id="finalVerdict" class="reasoning-content">
+                            Generating final recommendation...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-section">
+                    <button id="newAnalysisBtn" class="secondary-btn">
+                        <i class="fas fa-plus"></i> New Analysis
+                    </button>
+                    <button id="saveResultsBtn" class="secondary-btn">
+                        <i class="fas fa-save"></i> Save to Google Sheets
+                    </button>
+                </div>
+            </section>
+
+            <!-- Error Section -->
+            <section class="error-section" id="errorSection" style="display: none;">
+                <div class="error-content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Analysis Failed</h3>
+                    <p id="errorMessage">An error occurred during analysis.</p>
+                    <button id="retryBtn" class="retry-btn">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>Powered by Mistral AI • Built with ❤️ for better decisions</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
