@@ -1,0 +1,1 @@
+window.APP_CONFIG = { MISTRAL_API_KEY: 'j4h3leTe769ILXBLzwsMkrKEzWqZjOTj' };

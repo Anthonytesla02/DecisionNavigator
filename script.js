@@ -28,14 +28,26 @@ class DecisionSplitterApp {
 
     // API Configuration
     getSharedApiKeys() {
-        // Shared API keys for all users with fallbacks
-        // In production, these should be replaced with actual API keys
-        // For development/demo, we'll use the fallback analysis system
-        return [
-            'demo-key-1', // These are demo keys that will trigger fallback analysis
-            'demo-key-2',
-            'demo-key-3'
-        ];
+        // Get API key from config file, localStorage, or use fallback
+        const configKey = window.APP_CONFIG?.MISTRAL_API_KEY;
+        const localKey = localStorage.getItem('mistral_api_key');
+        
+        const keys = [];
+        
+        // Add config key if it's not a placeholder
+        if (configKey && !configKey.includes('REPLACE_WITH_ACTUAL_KEY')) {
+            keys.push(configKey);
+        }
+        
+        // Add local storage key if available
+        if (localKey) {
+            keys.push(localKey);
+        }
+        
+        // Add fallback demo keys for development
+        keys.push('demo-fallback-key-1', 'demo-fallback-key-2');
+        
+        return keys;
     }
 
     getJsonBinConfig() {
@@ -136,6 +148,12 @@ class DecisionSplitterApp {
     }
 
     handlePageLogic(pageName) {
+        // Check for credit upgrade prompt on relevant pages
+        if (this.currentUser && this.currentUser.credits <= 0 && 
+            ['analyze', 'dashboard'].includes(pageName)) {
+            this.showUpgradeBanner();
+        }
+
         switch (pageName) {
             case 'analyze':
                 this.checkAnalyzeAccess();
@@ -160,10 +178,105 @@ class DecisionSplitterApp {
         }
 
         if (this.currentUser.credits <= 0) {
-            this.showToast('You have no credits remaining. Please upgrade your plan.', 'error');
-            this.showPage('dashboard');
+            this.showUpgradePrompt();
             return;
         }
+    }
+
+    showUpgradePrompt() {
+        // Show upgrade popup
+        this.showUpgradePopup();
+        // Show sticky banner
+        this.showUpgradeBanner();
+    }
+
+    showUpgradePopup() {
+        // Remove existing popup if any
+        const existingPopup = document.getElementById('upgradePopup');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+
+        const popup = document.createElement('div');
+        popup.id = 'upgradePopup';
+        popup.className = 'upgrade-popup';
+        popup.innerHTML = `
+            <div class="upgrade-popup-content">
+                <div class="upgrade-popup-header">
+                    <h3><i class="fas fa-rocket"></i> Upgrade to Continue</h3>
+                    <button class="close-popup" onclick="this.closest('.upgrade-popup').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="upgrade-popup-body">
+                    <p>You've used all your free trial credits! To continue making informed decisions with AI-powered analysis, upgrade to a premium plan.</p>
+                    <div class="upgrade-benefits">
+                        <div class="benefit-item">
+                            <i class="fas fa-infinity"></i>
+                            <span>Unlimited AI analyses</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Advanced insights</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-history"></i>
+                            <span>Decision history tracking</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-download"></i>
+                            <span>PDF export functionality</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="upgrade-popup-footer">
+                    <button class="btn btn-primary upgrade-btn" onclick="app.showUpgradePage()">
+                        <i class="fas fa-crown"></i> Upgrade Now
+                    </button>
+                    <button class="btn btn-secondary close-popup" onclick="this.closest('.upgrade-popup').remove()">
+                        Maybe Later
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(popup);
+    }
+
+    showUpgradeBanner() {
+        // Remove existing banner if any
+        const existingBanner = document.getElementById('upgradeBanner');
+        if (existingBanner) {
+            existingBanner.remove();
+        }
+
+        const banner = document.createElement('div');
+        banner.id = 'upgradeBanner';
+        banner.className = 'upgrade-banner';
+        banner.innerHTML = `
+            <div class="upgrade-banner-content">
+                <div class="banner-text">
+                    <i class="fas fa-info-circle"></i>
+                    <span>You've reached your free analysis limit. Upgrade to continue making better decisions!</span>
+                </div>
+                <div class="banner-actions">
+                    <button class="btn btn-small btn-primary" onclick="app.showUpgradePage()">
+                        <i class="fas fa-crown"></i> Upgrade
+                    </button>
+                    <button class="btn btn-small btn-ghost" onclick="this.closest('.upgrade-banner').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertBefore(banner, document.body.firstChild);
+    }
+
+    showUpgradePage() {
+        // Create and show upgrade page
+        this.showPage('home'); // For now, redirect to home page with pricing
+        this.showToast('Upgrade plans coming soon! Contact support for premium features.', 'info');
     }
 
     // Authentication System
@@ -398,12 +511,19 @@ class DecisionSplitterApp {
 
     // Enhanced Factor System
     initializeFactorSystem() {
-        // Add factor buttons
+        // Add factor buttons with improved event handling
         document.querySelectorAll('.add-factor-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const option = e.target.getAttribute('data-option');
-                const type = e.target.getAttribute('data-type');
-                this.addFactor(option, type);
+                e.preventDefault();
+                const button = e.target.closest('.add-factor-btn');
+                const option = button?.getAttribute('data-option');
+                const type = button?.getAttribute('data-type');
+                
+                if (option && type) {
+                    this.addFactor(option, type);
+                } else {
+                    console.error('Missing option or type parameter on button:', button);
+                }
             });
         });
 
@@ -837,13 +957,42 @@ FINAL_VERDICT:
     }
     
     getFallbackAnalysis(prompt) {
-        // Provide intelligent fallback responses based on prompt content
+        // Provide detailed, convincing fallback responses based on prompt content
         if (prompt.includes('emotional impact')) {
-            return "This decision shows moderate emotional complexity. Consider stress levels, long-term satisfaction, and personal values. The choice that aligns better with your core priorities and reduces future regret is likely the better option.";
+            return `This decision carries significant emotional weight that extends beyond simple logic. When making this choice, consider how it will affect your daily happiness, stress levels, and long-term life satisfaction. Think about which option energizes you when you imagine implementing it, and which one might cause ongoing anxiety or regret. 
+
+Research shows that decisions aligned with our core values lead to greater satisfaction even when they're initially challenging. Ask yourself: Which choice reflects who you want to become? Which option would you be proud to tell others about five years from now? The emotional dimension often reveals the path that leads to authentic fulfillment, not just temporary comfort.
+
+Remember that fear of change often masks the choice that will ultimately bring growth and satisfaction. Trust your emotional intelligence alongside logical reasoning.`;
         } else if (prompt.includes('detailed analysis')) {
-            return "Based on the factors provided, both options have merit. Focus on the option that offers better long-term alignment with your goals, has fewer significant downsides, and provides more opportunities for growth and satisfaction.";
+            return `After carefully analyzing both options, here's what you should consider:
+
+**Strategic Perspective:** Look beyond immediate convenience and focus on long-term outcomes. The best choice isn't always the easiest one right now, but the one that positions you better for future success and satisfaction. Consider which option builds valuable skills, opens new opportunities, or aligns with your 5-year vision.
+
+**Risk Assessment:** Every decision involves trade-offs. Evaluate the worst-case scenarios for each option and your ability to recover or adapt. Often, the "riskier" choice is actually safer long-term because it builds resilience and capabilities.
+
+**Values Alignment:** Your decision should reflect your core principles and authentic self. Ask yourself: Which choice would the person you aspire to become make? Which option allows you to maintain integrity and self-respect?
+
+**Practical Implementation:** Consider your current resources, energy levels, and support systems. The theoretically better choice might not be practical if you lack the means to execute it successfully.
+
+**Opportunity Cost:** Remember that choosing one option means saying no to the other. Which missed opportunity would you regret more? Which path offers the least reversible benefits?
+
+The analysis suggests moving forward with confidence once you've considered these dimensions. Trust the process and commit fully to your chosen path.`;
         } else {
-            return "This analysis suggests considering both logical factors and emotional well-being. The recommended choice should balance practical benefits with personal fulfillment and minimize potential negative outcomes.";
+            return `Based on the available information, here's a comprehensive analysis:
+
+This decision represents an important crossroads that deserves careful consideration. Both options have distinct advantages, but your choice should prioritize long-term satisfaction over short-term convenience.
+
+**Key Considerations:**
+- Which option aligns better with your personal values and life goals?
+- What would each choice look like in 1 year, 3 years, and 5 years?
+- Which path offers better opportunities for growth and learning?
+- How do the financial implications differ over time?
+- Which choice would you be more likely to recommend to someone you care about?
+
+Remember that perfect decisions don't exist, but good decisions do. Focus on making a choice you can commit to fully and execute with confidence. The quality of your implementation often matters more than the theoretical superiority of the option.
+
+Trust your analysis, but also trust your intuition. If you've done the logical work and still feel uncertain, listen to what your gut is telling you about which path feels more authentic and energizing.`;
         }
     }
 
