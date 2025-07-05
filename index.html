@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Decision Splitter</title>
+    <title>Decision AI</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,7 +14,7 @@
         <div class="nav-container">
             <div class="nav-brand">
                 <i class="fas fa-brain"></i>
-                <span>AI Decision Splitter</span>
+                <span>Decision AI</span>
             </div>
             <ul class="nav-menu" id="navMenu">
                 <li class="nav-item">
@@ -137,7 +137,7 @@
                             </ul>
                         </div>
                         <div>
-                            <h3 style="color: #90EE90; margin-bottom: 20px; font-size: 1.4rem;">✅ With AI Decision Splitter:</h3>
+                            <h3 style="color: #90EE90; margin-bottom: 20px; font-size: 1.4rem;">✅ With Decision AI:</h3>
                             <ul style="color: white; opacity: 0.9; line-height: 2; list-style: none;">
                                 <li>• Clear, data-driven recommendations</li>
                                 <li>• Confidence in your choices</li>
@@ -294,14 +294,24 @@
                     <div class="option-card">
                         <h2><i class="fas fa-arrow-left"></i> Option A</h2>
                         <div class="input-group">
-                            <label for="optionAName">Option Name:</label>
+                            <label for="optionAName">Option Name: 
+                                <span class="tooltip">
+                                    <i class="fas fa-question-circle tooltip-icon"></i>
+                                    <span class="tooltip-text">Give your first option a clear, descriptive name that you can easily identify. Examples: "Job Offer at Tech Corp", "Move to Austin", "Buy the Blue Car"</span>
+                                </span>
+                            </label>
                             <input type="text" id="optionAName" placeholder="Enter Option A name" maxlength="100">
                         </div>
                         
                         <!-- Pros Section -->
                         <div class="factors-section">
                             <div class="factors-header">
-                                <label>Pros:</label>
+                                <label>Pros: 
+                                    <span class="tooltip">
+                                        <i class="fas fa-question-circle tooltip-icon"></i>
+                                        <span class="tooltip-text">List positive factors that make this option attractive. Each factor can be weighted 1-10 based on importance.</span>
+                                    </span>
+                                </label>
                                 <button type="button" class="add-factor-btn" data-option="A" data-type="pros">
                                     <i class="fas fa-plus"></i> Add Pro
                                 </button>
@@ -324,7 +334,12 @@
                         <!-- Cons Section -->
                         <div class="factors-section">
                             <div class="factors-header">
-                                <label>Cons:</label>
+                                <label>Cons: 
+                                    <span class="tooltip">
+                                        <i class="fas fa-question-circle tooltip-icon"></i>
+                                        <span class="tooltip-text">List negative factors or drawbacks of this option. Higher weights (8-10) indicate major concerns.</span>
+                                    </span>
+                                </label>
                                 <button type="button" class="add-factor-btn" data-option="A" data-type="cons">
                                     <i class="fas fa-plus"></i> Add Con
                                 </button>
@@ -349,7 +364,12 @@
                     <div class="option-card">
                         <h2><i class="fas fa-arrow-right"></i> Option B</h2>
                         <div class="input-group">
-                            <label for="optionBName">Option Name:</label>
+                            <label for="optionBName">Option Name: 
+                                <span class="tooltip">
+                                    <i class="fas fa-question-circle tooltip-icon"></i>
+                                    <span class="tooltip-text">Give your second option a clear, descriptive name. This should be the alternative you're comparing against Option A.</span>
+                                </span>
+                            </label>
                             <input type="text" id="optionBName" placeholder="Enter Option B name" maxlength="100">
                         </div>
                         
@@ -672,95 +692,25 @@
                 
                 <div class="settings-section">
                     <h3>API Configuration</h3>
-                    <div class="input-group">
-                        <label for="mistralApiKey">Mistral API Key:</label>
-                        <input type="password" id="mistralApiKey" placeholder="Enter your Mistral API key">
-                        <small>Required for AI-powered analysis. Get your key from <a href="https://mistral.ai" target="_blank">Mistral AI</a></small>
+                    <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; border-left: 4px solid #2196f3; margin-bottom: 20px;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">🔧 AI Integration</h4>
+                        <p style="color: #1565c0; margin: 0;">Decision AI uses shared AI APIs for all users. No API key setup required - just sign up and start analyzing your decisions immediately!</p>
                     </div>
-                    <div class="input-group">
-                        <label for="googleSheetsUrl">Google Sheets URL:</label>
-                        <input type="url" id="googleSheetsUrl" placeholder="Optional: Google Sheets API endpoint">
-                        <small>For saving decision history. <a href="#" id="showGoogleSheetsGuide" style="color: #667eea; text-decoration: underline;">Click here for free setup guide</a></small>
+                    <div style="background: #f0f8ff; padding: 20px; border-radius: 10px; border-left: 4px solid #28a745; margin-bottom: 20px;">
+                        <h4 style="color: #155724; margin-bottom: 10px;">💾 Free Database Storage</h4>
+                        <p style="color: #155724; margin: 0;">Decision AI uses JSONBin.io - a free JSON database service. Your decision history is automatically saved to a secure cloud database. No setup required!</p>
                     </div>
                     
-                    <!-- Google Sheets Setup Guide -->
-                    <div id="googleSheetsGuide" style="display: none; background: #f8f9fa; border-radius: 10px; padding: 20px; margin-top: 15px; border-left: 4px solid #667eea;">
-                        <h4 style="color: #333; margin-bottom: 15px;">📋 Free Google Sheets Database Setup</h4>
-                        <p style="margin-bottom: 15px; color: #666;">Follow these steps to create a free database for your decision history:</p>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h5 style="color: #495057; margin-bottom: 10px;">Step 1: Create a Google Sheet</h5>
-                            <ol style="color: #666; line-height: 1.6; margin-left: 20px;">
-                                <li>Go to <a href="https://sheets.google.com" target="_blank" style="color: #667eea;">Google Sheets</a> and create a new spreadsheet</li>
-                                <li>Name it "Decision Analysis Database"</li>
-                                <li>Add these column headers in row 1: timestamp, user_email, option_a_name, option_a_pros, option_a_cons, option_b_name, option_b_pros, option_b_cons, logical_score_a, logical_score_b, emotional_score_a, emotional_score_b, final_score_a, final_score_b, winner</li>
-                            </ol>
-                        </div>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h5 style="color: #495057; margin-bottom: 10px;">Step 2: Create Google Apps Script</h5>
-                            <ol style="color: #666; line-height: 1.6; margin-left: 20px;">
-                                <li>In your Google Sheet, go to <strong>Extensions → Apps Script</strong></li>
-                                <li>Delete the existing code and paste this script:</li>
-                            </ol>
-                            <textarea readonly style="width: 100%; height: 200px; margin: 10px 0; padding: 10px; background: #f1f3f4; border: 1px solid #ddd; border-radius: 5px; font-family: monospace; font-size: 12px;">function doPost(e) {
-  try {
-    const sheet = SpreadsheetApp.getActiveSheet();
-    const data = JSON.parse(e.postData.contents);
-    
-    // Add new row with the data
-    sheet.appendRow([
-      data.timestamp,
-      data.user_email,
-      data.option_a_name,
-      data.option_a_pros,
-      data.option_a_cons,
-      data.option_b_name,
-      data.option_b_pros,
-      data.option_b_cons,
-      data.logical_score_a,
-      data.logical_score_b,
-      data.emotional_score_a,
-      data.emotional_score_b,
-      data.final_score_a,
-      data.final_score_b,
-      data.winner
-    ]);
-    
-    return ContentService.createTextOutput(JSON.stringify({status: 'success'}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (error) {
-    return ContentService.createTextOutput(JSON.stringify({status: 'error', message: error.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}</textarea>
-                        </div>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h5 style="color: #495057; margin-bottom: 10px;">Step 3: Deploy the Script</h5>
-                            <ol style="color: #666; line-height: 1.6; margin-left: 20px;">
-                                <li>Click <strong>Deploy → New deployment</strong></li>
-                                <li>Click the gear icon next to "Type" and select <strong>Web app</strong></li>
-                                <li>Set "Execute as" to <strong>Me</strong></li>
-                                <li>Set "Who has access" to <strong>Anyone</strong></li>
-                                <li>Click <strong>Deploy</strong></li>
-                                <li>Copy the <strong>Web app URL</strong> - this is what you'll paste above</li>
-                            </ol>
-                        </div>
-                        
-                        <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
-                            <h5 style="color: #1976d2; margin-bottom: 10px;">💡 Pro Tips:</h5>
-                            <ul style="color: #1565c0; line-height: 1.6; margin-left: 20px;">
-                                <li>Your data is stored in your own Google account - completely private</li>
-                                <li>You can access and analyze your decision history anytime in Google Sheets</li>
-                                <li>Add charts and formulas to track your decision patterns</li>
-                                <li>This setup is 100% free with unlimited storage</li>
-                            </ul>
-                        </div>
-                        
-                        <button type="button" id="hideGoogleSheetsGuide" style="margin-top: 15px; background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
-                            Close Guide
-                        </button>
+                    <!-- Database Benefits Section -->
+                    <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-top: 15px; border-left: 4px solid #28a745;">
+                        <h4 style="color: #155724; margin-bottom: 15px;">📊 Database Features</h4>
+                        <ul style="color: #155724; line-height: 1.8; margin-left: 20px;">
+                            <li><strong>Automatic Backup:</strong> All your decisions are safely stored in the cloud</li>
+                            <li><strong>Cross-Device Sync:</strong> Access your history from any device</li>
+                            <li><strong>Privacy Focused:</strong> Data encrypted and securely stored</li>
+                            <li><strong>No Setup Required:</strong> Works immediately after account creation</li>
+                            <li><strong>Unlimited Storage:</strong> Store thousands of decisions at no cost</li>
+                        </ul>
                     </div>
                 </div>
 

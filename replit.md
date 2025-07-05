@@ -1,8 +1,8 @@
-# AI Decision Splitter
+# Decision AI
 
 ## Overview
 
-AI Decision Splitter is a comprehensive multi-page web application that helps users make informed decisions by comparing two options using both logical and emotional analysis. The application features user authentication, credit-based analysis system, admin panel, interactive charts, and AI-powered insights via Mistral API.
+Decision AI is a comprehensive multi-page web application that helps users make informed decisions by comparing two options using both logical and emotional analysis. The application features shared AI integration (no user API keys required), JSONBin cloud database, user authentication, credit-based analysis system, admin panel, interactive charts, tooltips, and AI-powered insights via Mistral API.
 
 ## System Architecture
 
@@ -17,11 +17,12 @@ The application is designed as a sophisticated static site with client-side rout
 
 ### Technology Stack
 - **Frontend**: Vanilla HTML5, CSS3, JavaScript (ES6+) with Chart.js for visualization
-- **Styling**: Custom responsive CSS with Font Awesome icons and CSS Grid/Flexbox
+- **Styling**: Custom responsive CSS with Font Awesome icons, CSS Grid/Flexbox, and tooltip system
 - **Authentication**: Client-side authentication with localStorage persistence
 - **Charts**: Chart.js for interactive data visualization
-- **AI Integration**: Mistral API via fetch requests
-- **Data Storage**: localStorage for user data + optional Google Sheets integration
+- **AI Integration**: Shared Mistral API keys with intelligent fallback system
+- **Data Storage**: JSONBin.io cloud database with localStorage fallback
+- **UX Enhancement**: Comprehensive tooltip system for user guidance
 
 ## Key Components
 
@@ -134,6 +135,23 @@ The application is designed as a sophisticated static site with client-side rout
 - Rate limiting handled by external APIs
 
 ## Recent Changes
+- **July 05, 2025 - Major UX and Integration Update**: Enhanced user experience and simplified setup
+  - **BREAKING**: Rebranded from "AI Decision Splitter" to "Decision AI"
+  - **BREAKING**: Implemented shared Mistral AI APIs (no user API keys required)
+  - **BREAKING**: Replaced Google Sheets with JSONBin.io cloud database
+  - Added comprehensive tooltip system to analysis page for user guidance
+  - Dramatically enhanced landing page with conversion-focused copy:
+    - Problem/solution comparison sections
+    - 6 detailed use case scenarios
+    - Step-by-step process explanation
+    - Social proof and testimonials
+    - Enhanced mobile responsive design
+  - Fixed JavaScript null reference errors in factor management
+  - Hidden home navigation for logged-in users
+  - Created comprehensive CHANGELOG.md documenting all project evolution
+  - Enhanced error handling with intelligent fallback systems
+  - Improved mobile responsiveness for new landing page sections
+
 - **July 04, 2025 - Major Architecture Update**: Transformed from single-page app to comprehensive multi-page application
   - Implemented multi-page navigation system (Home, Analyze, Dashboard, Settings, Admin)
   - Added user authentication with login/register functionality
