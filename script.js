@@ -7,6 +7,8 @@ class DecisionSplitterApp {
         this.currentPage = 'home';
         this.sharedApiKeys = this.getSharedApiKeys();
         this.jsonBinConfig = this.getJsonBinConfig();
+        this.mistralApiKey = this.getMistralApiKey();
+        this.googleSheetsUrl = this.getGoogleSheetsUrl();
         this.alpha = 0.3; // Weight for emotional vs logical scoring
         this.currentAnalysis = null;
         this.charts = {};
@@ -42,6 +44,17 @@ class DecisionSplitterApp {
             apiKey: 'your-jsonbin-api-key-here',
             baseUrl: 'https://api.jsonbin.io/v3'
         };
+    }
+
+    // Environment variable support methods
+    getMistralApiKey() {
+        // Check for localStorage first, then use shared keys
+        return localStorage.getItem('mistral_api_key') || null;
+    }
+
+    getGoogleSheetsUrl() {
+        // Legacy method for backward compatibility - now uses JSONBin
+        return localStorage.getItem('google_sheets_url') || null;
     }
 
     // Navigation System
