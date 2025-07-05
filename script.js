@@ -29,11 +29,12 @@ class DecisionSplitterApp {
     // API Configuration
     getSharedApiKeys() {
         // Shared API keys for all users with fallbacks
-        // These should be replaced with actual API keys in production
+        // In production, these should be replaced with actual API keys
+        // For development/demo, we'll use the fallback analysis system
         return [
-            'your-primary-mistral-api-key-here',
-            'your-secondary-mistral-api-key-here', 
-            'your-tertiary-mistral-api-key-here'
+            'demo-key-1', // These are demo keys that will trigger fallback analysis
+            'demo-key-2',
+            'demo-key-3'
         ];
     }
 
@@ -608,11 +609,7 @@ class DecisionSplitterApp {
             return;
         }
 
-        if (!this.mistralApiKey) {
-            this.showToast('Please configure your Mistral API key in Settings', 'error');
-            this.showPage('settings');
-            return;
-        }
+        // No longer need to check for API key since we use shared keys
 
         try {
             this.showLoadingOverlay();
@@ -796,7 +793,7 @@ FINAL_VERDICT:
         
         // Try each API key until one works
         for (const apiKey of apiKeys) {
-            // Skip placeholder keys
+            // Skip placeholder keys but allow demo keys to proceed (they'll fail gracefully)
             if (apiKey.includes('your-') && apiKey.includes('-api-key-here')) {
                 continue;
             }
