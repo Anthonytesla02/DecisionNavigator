@@ -5,8 +5,8 @@ class DecisionSplitterApp {
     constructor() {
         this.currentUser = null;
         this.currentPage = 'home';
-        this.mistralApiKey = this.getMistralApiKey();
-        this.googleSheetsUrl = this.getGoogleSheetsUrl();
+        this.sharedApiKeys = this.getSharedApiKeys();
+        this.jsonBinConfig = this.getJsonBinConfig();
         this.alpha = 0.3; // Weight for emotional vs logical scoring
         this.currentAnalysis = null;
         this.charts = {};
