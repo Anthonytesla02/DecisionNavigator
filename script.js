@@ -274,9 +274,8 @@ class DecisionSplitterApp {
     }
 
     showUpgradePage() {
-        // Create and show upgrade page
-        this.showPage('home'); // For now, redirect to home page with pricing
-        this.showToast('Upgrade plans coming soon! Contact support for premium features.', 'info');
+        // Show dedicated upgrade page
+        this.showPage('upgrade');
     }
 
     // Authentication System
@@ -1029,10 +1028,10 @@ Trust your analysis, but also trust your intuition. If you've done the logical w
         const winnerName = winner === 'A' ? optionA.name : optionB.name;
         document.getElementById('winnerText').textContent = `Choose ${winnerName}`;
 
-        // Update analysis sections
-        document.getElementById('logicReasoning').textContent = analysis.logic;
-        document.getElementById('emotionReasoning').textContent = analysis.emotion;
-        document.getElementById('finalVerdict').textContent = analysis.verdict;
+        // Update analysis sections with expandable content
+        this.createExpandableAnalysis('logicReasoning', analysis.logic);
+        this.createExpandableAnalysis('emotionReasoning', analysis.emotion);
+        this.createExpandableAnalysis('finalVerdict', analysis.verdict);
 
         // Show results section
         const resultsSection = document.getElementById('resultsSection');
@@ -1043,6 +1042,36 @@ Trust your analysis, but also trust your intuition. If you've done the logical w
         document.getElementById('inputSection').style.display = 'none';
 
         this.showToast('Analysis complete!', 'success');
+    }
+
+    createExpandableAnalysis(elementId, fullText) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        // Split text into sentences to find a good break point
+        const sentences = fullText.split('. ');
+        const previewSentences = Math.min(2, sentences.length); // Show first 2 sentences
+        const previewText = sentences.slice(0, previewSentences).join('. ') + (sentences.length > previewSentences ? '.' : '');
+        const remainingText = sentences.slice(previewSentences).join('. ');
+
+        if (sentences.length <= 2 || fullText.length <= 200) {
+            // If text is short, don't make it expandable
+            element.innerHTML = fullText;
+            return;
+        }
+
+        // Create expandable content
+        element.innerHTML = `
+            <div class="expandable-content">
+                <div class="preview-text">${previewText}</div>
+                <div class="full-text" style="display: none;">${fullText}</div>
+                <button class="expand-btn" onclick="this.parentElement.classList.toggle('expanded')">
+                    <span class="expand-text">Read More</span>
+                    <span class="collapse-text" style="display: none;">Read Less</span>
+                    <i class="fas fa-chevron-down expand-icon"></i>
+                </button>
+            </div>
+        `;
     }
 
     // Chart Creation
@@ -1245,10 +1274,14 @@ Trust your analysis, but also trust your intuition. If you've done the logical w
             return;
         }
 
-        // Load current settings
-        document.getElementById('mistralApiKey').value = this.mistralApiKey || '';
-        document.getElementById('googleSheetsUrl').value = this.googleSheetsUrl || '';
-        document.getElementById('emotionalWeight').value = this.alpha;
+        // Load current settings with null checks
+        const mistralApiKeyEl = document.getElementById('mistralApiKey');
+        const googleSheetsUrlEl = document.getElementById('googleSheetsUrl');
+        const emotionalWeightEl = document.getElementById('emotionalWeight');
+        
+        if (mistralApiKeyEl) mistralApiKeyEl.value = this.mistralApiKey || '';
+        if (googleSheetsUrlEl) googleSheetsUrlEl.value = this.googleSheetsUrl || '';
+        if (emotionalWeightEl) emotionalWeightEl.value = this.alpha;
         
         // Update range display
         const rangeValue = document.querySelector('.range-value');
@@ -1273,10 +1306,14 @@ Trust your analysis, but also trust your intuition. If you've done the logical w
     }
 
     saveSettings() {
-        // Save API settings
-        const mistralKey = document.getElementById('mistralApiKey').value.trim();
-        const sheetsUrl = document.getElementById('googleSheetsUrl').value.trim();
-        const emotionalWeight = parseFloat(document.getElementById('emotionalWeight').value);
+        // Save API settings with null checks
+        const mistralKeyEl = document.getElementById('mistralApiKey');
+        const sheetsUrlEl = document.getElementById('googleSheetsUrl');
+        const emotionalWeightEl = document.getElementById('emotionalWeight');
+        
+        const mistralKey = mistralKeyEl ? mistralKeyEl.value.trim() : '';
+        const sheetsUrl = sheetsUrlEl ? sheetsUrlEl.value.trim() : '';
+        const emotionalWeight = emotionalWeightEl ? parseFloat(emotionalWeightEl.value) : this.alpha;
 
         if (mistralKey) {
             localStorage.setItem('mistral_api_key', mistralKey);

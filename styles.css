@@ -2193,3 +2193,317 @@ body {
         justify-content: center;
     }
 }
+
+/* Expandable Analysis Content */
+.expandable-content {
+    position: relative;
+}
+
+.expandable-content.expanded .preview-text {
+    display: none;
+}
+
+.expandable-content.expanded .full-text {
+    display: block !important;
+}
+
+.expandable-content.expanded .expand-text {
+    display: none;
+}
+
+.expandable-content.expanded .collapse-text {
+    display: inline !important;
+}
+
+.expandable-content.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+.expand-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.expand-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.expand-icon {
+    transition: transform 0.3s ease;
+}
+
+/* Upgrade Page Styles */
+.upgrade-container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.upgrade-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.upgrade-header h2 {
+    color: #333;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.upgrade-header h2 i {
+    color: #f39c12;
+}
+
+.upgrade-header p {
+    color: #666;
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+.pricing-plans {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+.plan-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid #f0f0f0;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.plan-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.popular-plan {
+    border-color: #667eea;
+    transform: scale(1.05);
+}
+
+.popular-plan:hover {
+    transform: scale(1.05) translateY(-10px);
+}
+
+.plan-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.plan-header h3 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+.plan-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 5px;
+}
+
+.price {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.period {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.plan-features {
+    margin-bottom: 30px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.feature:last-child {
+    border-bottom: none;
+}
+
+.feature i {
+    color: #28a745;
+    font-size: 16px;
+    width: 20px;
+}
+
+.feature span {
+    color: #333;
+    font-weight: 500;
+}
+
+.plan-badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #667eea;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.plan-badge.popular {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.upgrade-plan-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.upgrade-plan-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.upgrade-benefits {
+    margin-bottom: 50px;
+}
+
+.upgrade-benefits h3 {
+    text-align: center;
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 40px;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.benefit-card {
+    text-align: center;
+    padding: 30px 20px;
+    background: #f8f9ff;
+    border-radius: 15px;
+    border: 1px solid #e0e8ff;
+    transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(102, 126, 234, 0.2);
+}
+
+.benefit-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 24px;
+}
+
+.benefit-card h4 {
+    color: #333;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.benefit-card p {
+    color: #666;
+    line-height: 1.6;
+}
+
+.upgrade-footer {
+    text-align: center;
+    padding-top: 40px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.upgrade-footer p {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.upgrade-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Mobile Responsiveness for Upgrade Page */
+@media (max-width: 768px) {
+    .upgrade-container {
+        padding: 20px;
+    }
+    
+    .upgrade-header h2 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .pricing-plans {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .popular-plan {
+        transform: none;
+    }
+    
+    .popular-plan:hover {
+        transform: translateY(-10px);
+    }
+    
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .upgrade-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
