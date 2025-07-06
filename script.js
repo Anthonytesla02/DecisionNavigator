@@ -167,6 +167,9 @@ class DecisionSplitterApp {
             case 'settings':
                 this.loadSettings();
                 break;
+            case 'upgrade':
+                console.log('Loading upgrade page');
+                break;
         }
     }
 
@@ -1061,6 +1064,7 @@ Trust your analysis, but also trust your intuition. If you've done the logical w
         }
 
         // Create expandable content
+        console.log('Creating expandable analysis for:', elementId, 'Text length:', fullText.length);
         element.innerHTML = `
             <div class="expandable-content">
                 <div class="preview-text">${previewText}</div>
@@ -1712,4 +1716,4 @@ Trust your analysis, but also trust your intuition. If you've done the logical w
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new DecisionSplitterApp();
-});
+});console.log('Cache buster:  1751812223 ');
